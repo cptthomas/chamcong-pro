@@ -1,0 +1,16 @@
+services:
+  - type: web
+    name: chamcong-pro
+    runtime: node
+    plan: starter
+    buildCommand: npm install
+    startCommand: node server.js
+    disk:
+      name: chamcong-data
+      mountPath: /data
+      sizeGB: 1
+    envVars:
+      - key: DB_PATH
+        value: /data/data.sqlite
+      - key: JWT_SECRET
+        generateValue: true

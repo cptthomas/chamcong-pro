@@ -1,0 +1,1868 @@
+<!DOCTYPE html>
+<html lang="vi" id="html-root">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>⏱ ChamCong Pro</title>
+<script src="https://cdn.tailwindcss.com"></script>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;600&display=swap');
+
+  :root {
+    --navy: #0F2447;
+    --navy-light: #1A3A6B;
+    --green: #059669;
+    --red: #DC2626;
+  }
+
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body { font-family: 'Inter', system-ui, sans-serif; background: #EEF2F7; }
+  .mono { font-family: 'JetBrains Mono', monospace; }
+
+  /* ── LANG SWITCH ── */
+  .lang-switch { display: inline-flex; background: rgba(255,255,255,.08); border: 1px solid rgba(255,255,255,.15); border-radius: 99px; padding: 3px; gap: 2px; }
+  .lang-switch.light { background: #F1F5F9; border-color: #E2E8F0; }
+  .lang-btn { border: none; background: transparent; padding: 5px 11px; border-radius: 99px; font-size: 11px; font-weight: 700; cursor: pointer; color: rgba(255,255,255,.5); transition: all .15s; letter-spacing: .3px; }
+  .lang-switch.light .lang-btn { color: #94A3B8; }
+  .lang-btn.active { background: #F59E0B; color: #7C2D12; }
+  .lang-switch.light .lang-btn.active { background: var(--navy); color: white; }
+
+  /* ── LOGIN SCREEN ── */
+  #screen-login {
+    min-height: 100vh;
+    background: linear-gradient(145deg, #0A1628 0%, #0F2447 50%, #1a1040 100%);
+    display: flex; align-items: center; justify-content: center; padding: 20px;
+  }
+  .login-card {
+    background: rgba(255,255,255,.06);
+    border: 1px solid rgba(255,255,255,.12);
+    backdrop-filter: blur(20px);
+    border-radius: 24px; padding: 40px; width: 100%; max-width: 400px;
+    box-shadow: 0 32px 80px rgba(0,0,0,.4);
+  }
+  .login-logo { font-size: 40px; text-align: center; margin-bottom: 6px; }
+  .login-title { color: white; font-size: 22px; font-weight: 800; text-align: center; letter-spacing: -.3px; }
+  .login-sub { color: rgba(255,255,255,.4); font-size: 13px; text-align: center; margin-top: 4px; margin-bottom: 22px; }
+  .login-label { color: rgba(255,255,255,.6); font-size: 11px; font-weight: 600; text-transform: uppercase; letter-spacing: .6px; margin-bottom: 7px; display: block; }
+  .login-inp {
+    width: 100%; padding: 12px 14px; border-radius: 12px; font-size: 14px; outline: none;
+    background: rgba(255,255,255,.08); border: 1.5px solid rgba(255,255,255,.12);
+    color: white; transition: border-color .15s;
+  }
+  .login-inp::placeholder { color: rgba(255,255,255,.3); }
+  .login-inp:focus { border-color: rgba(255,255,255,.35); background: rgba(255,255,255,.12); }
+  .login-btn {
+    width: 100%; padding: 14px; border-radius: 12px; font-size: 15px; font-weight: 700;
+    color: var(--navy); background: linear-gradient(135deg, #F59E0B, #FBBF24);
+    border: none; cursor: pointer; margin-top: 20px;
+    transition: transform .1s, box-shadow .15s;
+    box-shadow: 0 4px 20px rgba(245,158,11,.35);
+  }
+  .login-btn:hover { transform: translateY(-1px); box-shadow: 0 6px 24px rgba(245,158,11,.45); }
+  .login-btn:active { transform: scale(.98); }
+  .login-err { color: #FCA5A5; font-size: 13px; text-align: center; margin-top: 12px; min-height: 20px; }
+  .pw-wrap { position: relative; }
+  .pw-eye { position: absolute; right: 12px; top: 50%; transform: translateY(-50%); cursor: pointer; color: rgba(255,255,255,.4); font-size: 16px; user-select: none; }
+  .pw-eye:hover { color: rgba(255,255,255,.7); }
+
+  /* ── HEADER ── */
+  .app-header { background: var(--navy); position: sticky; top: 0; z-index: 40; }
+  .tab-btn { padding: 12px 18px; font-size: 13px; font-weight: 500; border-bottom: 3px solid transparent; transition: all .2s; white-space: nowrap; color: rgba(255,255,255,.45); background: none; border-top: none; border-left: none; border-right: none; cursor: pointer; }
+  .tab-btn:hover { color: rgba(255,255,255,.8); }
+  .tab-btn.active { color: white; border-bottom-color: #F59E0B; font-weight: 700; }
+
+  /* ── EMPLOYEE KIOSK ── */
+  #screen-employee { min-height: 100vh; background: #EEF2F7; }
+  .kiosk-card {
+    background: white; border-radius: 24px; padding: 32px;
+    box-shadow: 0 4px 24px rgba(0,0,0,.1); max-width: 420px; width: 100%; margin: 0 auto;
+  }
+  .kiosk-clock { font-family: 'JetBrains Mono', monospace; font-size: 46px; font-weight: 600; color: var(--navy); text-align: center; letter-spacing: 2px; line-height: 1; }
+  .kiosk-date { font-size: 13px; color: #64748B; text-align: center; margin-top: 6px; }
+  .kiosk-avatar { width: 72px; height: 72px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-weight: 800; font-size: 28px; margin: 0 auto; }
+  .punch-btn {
+    width: 100%; padding: 20px; border-radius: 18px; font-size: 20px; font-weight: 800;
+    color: white; border: none; cursor: pointer; letter-spacing: .3px;
+    transition: transform .1s, box-shadow .2s; box-shadow: 0 8px 28px rgba(0,0,0,.15);
+  }
+  .punch-btn:active { transform: scale(0.96); }
+  .punch-btn.clockin  { background: linear-gradient(135deg, #059669, #047857); }
+  .punch-btn.clockout { background: linear-gradient(135deg, #DC2626, #B91C1C); }
+
+  /* ── SHARED COMPONENTS ── */
+  .card { background: white; border-radius: 16px; padding: 20px; box-shadow: 0 1px 6px rgba(0,0,0,.07); }
+  .avatar { width: 40px; height: 40px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-weight: 700; font-size: 14px; flex-shrink: 0; }
+  @keyframes livePulse { 0%,100%{opacity:1;transform:scale(1)} 50%{opacity:.5;transform:scale(1.4)} }
+  .live-dot { width: 9px; height: 9px; border-radius: 50%; background: #10B981; animation: livePulse 1.8s infinite; }
+  .badge { display: inline-flex; align-items: center; gap: 4px; padding: 3px 9px; border-radius: 99px; font-size: 11px; font-weight: 600; }
+  .badge-green  { background: #ECFDF5; color: #065F46; }
+  .badge-gray   { background: #F1F5F9; color: #475569; }
+  .badge-blue   { background: #EFF6FF; color: #1D4ED8; }
+  .badge-purple { background: #F5F3FF; color: #6D28D9; }
+  .badge-amber  { background: #FFFBEB; color: #92400E; }
+  .inp { width: 100%; border: 1.5px solid #E2E8F0; border-radius: 10px; padding: 10px 12px; font-size: 14px; color: #0F172A; outline: none; transition: border-color .15s; font-family: inherit; background: white; }
+  .inp:focus { border-color: var(--navy); }
+  select.inp { appearance: none; background: white url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='8' viewBox='0 0 12 8'%3E%3Cpath fill='%2394A3B8' d='M6 8L0 0h12z'/%3E%3C/svg%3E") no-repeat right 12px center; }
+  .btn { padding: 9px 16px; border-radius: 10px; font-size: 13px; font-weight: 600; cursor: pointer; border: none; transition: all .15s; font-family: inherit; }
+  .btn-primary { background: var(--navy); color: white; }
+  .btn-primary:hover { background: var(--navy-light); }
+  .btn-success { background: #059669; color: white; }
+  .btn-success:hover { background: #047857; }
+  .btn-outline { background: white; color: #374151; border: 1.5px solid #E2E8F0; }
+  .btn-outline:hover { background: #F8FAFC; }
+  .btn-danger { background: white; color: #DC2626; border: 1.5px solid #FECACA; }
+  .btn-danger:hover { background: #FEF2F2; }
+  .btn-amber { background: #F59E0B; color: white; }
+  .btn-amber:hover { background: #D97706; }
+  .data-table { width: 100%; border-collapse: collapse; font-size: 13px; }
+  .data-table th { padding: 10px 12px; text-align: left; font-weight: 600; font-size: 11px; text-transform: uppercase; letter-spacing: .5px; color: #94A3B8; border-bottom: 2px solid #E2E8F0; }
+  .data-table td { padding: 11px 12px; border-bottom: 1px solid #F1F5F9; color: #374151; vertical-align: middle; }
+  .data-table tr:hover td { background: #FAFBFC; }
+  .modal-overlay { position: fixed; inset: 0; background: rgba(0,0,0,.45); display: flex; align-items: center; justify-content: center; z-index: 100; padding: 16px; }
+  .modal-box { background: white; border-radius: 20px; padding: 24px; width: 100%; max-width: 440px; box-shadow: 0 20px 60px rgba(0,0,0,.2); max-height: 90vh; overflow-y: auto; }
+  .empty { text-align: center; padding: 40px 16px; color: #94A3B8; }
+  .empty-icon { font-size: 40px; margin-bottom: 10px; }
+  .empty h3 { color: #64748B; font-size: 14px; font-weight: 600; margin-bottom: 3px; }
+  .empty p { font-size: 12px; }
+  ::-webkit-scrollbar { width: 5px; height: 5px; }
+  ::-webkit-scrollbar-thumb { background: #CBD5E1; border-radius: 99px; }
+  #toast { position: fixed; bottom: 24px; left: 50%; transform: translateX(-50%); z-index: 999; padding: 11px 20px; border-radius: 12px; color: white; font-size: 13px; font-weight: 600; box-shadow: 0 4px 20px rgba(0,0,0,.25); white-space: nowrap; transition: opacity .2s; }
+  .pay-card { background: linear-gradient(135deg, var(--navy), var(--navy-light)); color: white; border-radius: 16px; padding: 20px; }
+  .section-title { font-size: 18px; font-weight: 800; color: var(--navy); }
+  .section-sub { font-size: 12px; color: #94A3B8; margin-top: 2px; }
+  .admin-only-badge { display: inline-flex; align-items: center; gap: 4px; background: #FEF3C7; color: #92400E; font-size: 10px; font-weight: 700; padding: 2px 7px; border-radius: 6px; }
+  .clock-display { font-family: 'JetBrains Mono', monospace; font-size: 38px; font-weight: 600; color: var(--navy); letter-spacing: 2px; }
+
+  @media(max-width:640px){
+    .md-grid { grid-template-columns: 1fr !important; }
+    .data-table { font-size: 11px; }
+    .data-table th, .data-table td { padding: 8px 6px; }
+  }
+</style>
+</head>
+<body>
+
+<!-- ════════════════════════════════════════
+     SCREEN: LOGIN
+════════════════════════════════════════ -->
+<div id="screen-login">
+  <div class="login-card">
+    <div style="display:flex;justify-content:center;margin-bottom:16px;">
+      <div class="lang-switch" id="lang-switch-login">
+        <button class="lang-btn" data-lang="vi" onclick="setLang('vi')">VI</button>
+        <button class="lang-btn" data-lang="en" onclick="setLang('en')">EN</button>
+      </div>
+    </div>
+    <div class="login-logo">⏱</div>
+    <div class="login-title">ChamCong Pro</div>
+    <div class="login-sub" data-i18n="loginSub"></div>
+
+    <div style="margin-bottom:4px;">
+      <label class="login-label" data-i18n="passwordLabel"></label>
+      <div class="pw-wrap">
+        <input id="login-pw" type="password" class="login-inp" data-i18n-ph="passwordPlaceholder" onkeydown="if(event.key==='Enter')doLogin()" style="padding-right:40px;" autofocus>
+        <span class="pw-eye" onclick="togglePw('login-pw',this)">👁</span>
+      </div>
+    </div>
+
+    <div id="login-err" class="login-err"></div>
+    <button class="login-btn" data-i18n="loginBtn" onclick="doLogin()"></button>
+
+    <div style="margin-top:20px;padding-top:16px;border-top:1px solid rgba(255,255,255,.08);text-align:center;color:rgba(255,255,255,.25);font-size:11px;">
+      <span data-i18n="loginFirstUse"></span> <span style="color:rgba(255,255,255,.45);font-family:monospace;">admin123</span>
+    </div>
+  </div>
+</div>
+
+<!-- ════════════════════════════════════════
+     SCREEN: ADMIN APP
+════════════════════════════════════════ -->
+<div id="screen-admin" class="hidden">
+  <header class="app-header">
+    <div style="max-width:1000px;margin:0 auto;padding:10px 16px;display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:10px;">
+      <div style="display:flex;align-items:center;gap:10px;">
+        <div style="background:rgba(255,255,255,.12);border-radius:10px;padding:7px 10px;font-size:18px;">⏱</div>
+        <div>
+          <div style="color:white;font-weight:800;font-size:15px;line-height:1;">ChamCong Pro</div>
+          <div style="color:rgba(255,255,255,.4);font-size:10px;margin-top:2px;display:flex;align-items:center;gap:4px;">
+            <span style="background:#F59E0B;color:#7C2D12;font-size:9px;font-weight:700;padding:1px 5px;border-radius:4px;" data-i18n="adminBadge"></span>
+            <span data-i18n="adminName"></span>
+          </div>
+        </div>
+      </div>
+      <div style="display:flex;align-items:center;gap:10px;">
+        <div id="admin-header-clock" style="color:#F59E0B;font-family:'JetBrains Mono',monospace;font-size:13px;text-align:right;line-height:1.5;"></div>
+        <div class="lang-switch" id="lang-switch-admin">
+          <button class="lang-btn" data-lang="vi" onclick="setLang('vi')">VI</button>
+          <button class="lang-btn" data-lang="en" onclick="setLang('en')">EN</button>
+        </div>
+        <button class="btn btn-outline" onclick="doLogout()" style="font-size:12px;padding:7px 12px;" data-i18n="logout"></button>
+      </div>
+    </div>
+    <div style="max-width:1000px;margin:0 auto;padding:0 12px;display:flex;overflow-x:auto;border-top:1px solid rgba(255,255,255,.07);">
+      <button class="tab-btn active" id="atab-chamcong"   onclick="adminTab('chamcong')"  data-i18n="tabClock"></button>
+      <button class="tab-btn"        id="atab-nhanvien"  onclick="adminTab('nhanvien')"   data-i18n="tabEmp"></button>
+      <button class="tab-btn"        id="atab-lichsu"    onclick="adminTab('lichsu')"     data-i18n="tabHistory"></button>
+      <button class="tab-btn"        id="atab-bangluong" onclick="adminTab('bangluong')"  data-i18n="tabPayroll"></button>
+      <button class="tab-btn"        id="atab-caidat"    onclick="adminTab('caidat')"     data-i18n="tabSettings"></button>
+    </div>
+  </header>
+
+  <main style="max-width:1000px;margin:0 auto;padding:24px 16px;">
+
+    <!-- TAB: CLOCK IN/OUT overview -->
+    <div id="asec-chamcong">
+      <div style="display:grid;grid-template-columns:1fr 1.6fr;gap:20px;" class="md-grid">
+        <div>
+          <div class="card" style="margin-bottom:16px;">
+            <div class="clock-display" id="admin-big-clock" style="text-align:center;margin-bottom:4px;"></div>
+            <div id="admin-big-date" style="font-size:12px;color:#64748B;text-align:center;margin-bottom:20px;"></div>
+
+            <label style="font-size:11px;font-weight:600;color:#94A3B8;text-transform:uppercase;letter-spacing:.5px;margin-bottom:7px;display:block;" data-i18n="selectEmployee"></label>
+            <select id="asel-emp" class="inp" style="margin-bottom:14px;" onchange="aOnEmpChange()">
+              <option value="" data-i18n="selectEmployeeOpt"></option>
+            </select>
+            <div id="apunch-status" class="hidden" style="margin-bottom:12px;padding:10px;border-radius:12px;font-size:13px;font-weight:500;text-align:center;"></div>
+            <button id="apunch-btn" class="punch-btn clockin hidden" onclick="handleAdminPunch()" style="font-size:16px;padding:16px;"></button>
+            <div id="ano-emp-hint" style="text-align:center;padding:24px 0;color:#94A3B8;font-size:13px;">
+              <div style="font-size:28px;margin-bottom:8px;">👆</div><span data-i18n="chooseEmployeeHint"></span>
+            </div>
+          </div>
+        </div>
+
+        <div style="display:flex;flex-direction:column;gap:16px;">
+          <div class="card">
+            <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:12px;">
+              <span style="font-weight:600;font-size:13px;color:#374151;" data-i18n="today"></span>
+              <span id="atoday-total" style="font-family:'JetBrains Mono',monospace;font-size:13px;font-weight:700;color:var(--navy);"></span>
+            </div>
+            <div id="atoday-records"><div class="empty" style="padding:12px 0;"><p data-i18n="chooseEmployeeToView"></p></div></div>
+          </div>
+
+          <div class="card">
+            <div style="display:flex;align-items:center;gap:8px;margin-bottom:12px;">
+              <div class="live-dot"></div>
+              <span style="font-weight:600;font-size:13px;color:#374151;" data-i18n="currentlyWorking"></span>
+              <span id="aactive-count" class="badge badge-green" style="margin-left:auto;"></span>
+            </div>
+            <div id="aactive-list" style="display:flex;flex-direction:column;gap:8px;"></div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- TAB: EMPLOYEES -->
+    <div id="asec-nhanvien" class="hidden">
+      <div style="display:flex;align-items:flex-start;justify-content:space-between;margin-bottom:20px;flex-wrap:wrap;gap:12px;">
+        <div>
+          <div class="section-title" data-i18n="empListTitle"></div>
+          <div class="section-sub" data-i18n="empListSub"></div>
+        </div>
+        <button class="btn btn-primary" onclick="openEmpModal()" data-i18n="addEmployee"></button>
+      </div>
+      <div id="emp-list" style="display:grid;grid-template-columns:repeat(auto-fill,minmax(280px,1fr));gap:16px;"></div>
+    </div>
+
+    <!-- TAB: HISTORY -->
+    <div id="asec-lichsu" class="hidden">
+      <div class="card">
+        <div style="display:flex;align-items:flex-start;justify-content:space-between;flex-wrap:wrap;gap:12px;margin-bottom:16px;">
+          <div>
+            <div class="section-title" data-i18n="historyTitle"></div>
+            <div class="section-sub" data-i18n="historySub"></div>
+          </div>
+          <div style="display:flex;gap:8px;flex-wrap:wrap;">
+            <button class="btn btn-outline" onclick="openAddRecModal()" data-i18n="addManual"></button>
+            <button class="btn btn-success" onclick="exportRecCSV()" data-i18n="exportCSV"></button>
+          </div>
+        </div>
+        <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:10px;margin-bottom:16px;">
+          <select id="f-emp" class="inp" onchange="renderRecs()"><option value="" data-i18n="allEmployees"></option></select>
+          <input type="month" id="f-month" class="inp" onchange="renderRecs()">
+          <select id="f-period" class="inp" onchange="renderRecs()">
+            <option value="" data-i18n="allPeriods"></option>
+            <option value="1" data-i18n="period1Long"></option>
+            <option value="2" data-i18n="period2Long"></option>
+          </select>
+        </div>
+        <div style="overflow-x:auto;"><div id="recs-body"></div></div>
+      </div>
+    </div>
+
+    <!-- TAB: PAYROLL -->
+    <div id="asec-bangluong" class="hidden">
+      <div class="card" style="margin-bottom:20px;">
+        <div class="section-title" style="margin-bottom:4px;" data-i18n="payrollTitle"></div>
+        <div class="section-sub" style="margin-bottom:16px;" data-i18n="payrollSub"></div>
+        <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:12px;">
+          <input type="month" id="pay-month" class="inp">
+          <select id="pay-period" class="inp">
+            <option value="1" data-i18n="period1Long"></option>
+            <option value="2" data-i18n="period2Long"></option>
+          </select>
+          <button class="btn btn-primary" onclick="calcPayroll()" data-i18n="calcPayrollBtn"></button>
+        </div>
+      </div>
+      <div id="payroll-result"></div>
+    </div>
+
+    <!-- TAB: SETTINGS -->
+    <div id="asec-caidat" class="hidden">
+      <div class="card" style="margin-bottom:20px;max-width:480px;">
+        <div style="display:flex;align-items:center;gap:10px;margin-bottom:16px;">
+          <div style="width:36px;height:36px;background:#FEF3C7;border-radius:10px;display:flex;align-items:center;justify-content:center;font-size:18px;">🔑</div>
+          <div>
+            <div style="font-weight:700;color:var(--navy);" data-i18n="adminPwTitle"></div>
+            <div style="font-size:12px;color:#94A3B8;" data-i18n="adminPwSub"></div>
+          </div>
+        </div>
+        <div style="display:flex;flex-direction:column;gap:10px;">
+          <div>
+            <label style="font-size:11px;font-weight:600;color:#64748B;margin-bottom:6px;display:block;" data-i18n="currentPw"></label>
+            <div class="pw-wrap"><input id="old-pw" type="password" class="inp" data-i18n-ph="currentPwPh" style="padding-right:38px;"><span class="pw-eye" onclick="togglePw('old-pw',this)">👁</span></div>
+          </div>
+          <div>
+            <label style="font-size:11px;font-weight:600;color:#64748B;margin-bottom:6px;display:block;" data-i18n="newPw"></label>
+            <div class="pw-wrap"><input id="new-pw" type="password" class="inp" data-i18n-ph="newPwPh" style="padding-right:38px;"><span class="pw-eye" onclick="togglePw('new-pw',this)">👁</span></div>
+          </div>
+          <div>
+            <label style="font-size:11px;font-weight:600;color:#64748B;margin-bottom:6px;display:block;" data-i18n="confirmPw"></label>
+            <div class="pw-wrap"><input id="new-pw2" type="password" class="inp" data-i18n-ph="confirmPwPh" style="padding-right:38px;"><span class="pw-eye" onclick="togglePw('new-pw2',this)">👁</span></div>
+          </div>
+          <button class="btn btn-primary" onclick="changeAdminPw()" style="margin-top:4px;" data-i18n="updatePwBtn"></button>
+        </div>
+      </div>
+
+      <div class="card" style="max-width:640px;">
+        <div style="display:flex;align-items:center;gap:10px;margin-bottom:16px;">
+          <div style="width:36px;height:36px;background:#EFF6FF;border-radius:10px;display:flex;align-items:center;justify-content:center;font-size:18px;">👥</div>
+          <div>
+            <div style="font-weight:700;color:var(--navy);" data-i18n="empPwTitle"></div>
+            <div style="font-size:12px;color:#94A3B8;" data-i18n="empPwSub"></div>
+          </div>
+        </div>
+        <div id="emp-pw-list"></div>
+      </div>
+    </div>
+
+  </main>
+</div>
+
+<!-- ════════════════════════════════════════
+     SCREEN: EMPLOYEE KIOSK
+════════════════════════════════════════ -->
+<div id="screen-employee" class="hidden" style="min-height:100vh;background:linear-gradient(160deg,#0A1628,#0F2447);padding:20px;display:flex;flex-direction:column;align-items:center;justify-content:flex-start;padding-top:40px;">
+
+  <div style="width:100%;max-width:420px;display:flex;align-items:center;justify-content:space-between;margin-bottom:24px;flex-wrap:wrap;gap:10px;">
+    <div style="color:rgba(255,255,255,.4);font-size:12px;">⏱ ChamCong Pro</div>
+    <div style="display:flex;align-items:center;gap:10px;">
+      <div class="lang-switch" id="lang-switch-emp">
+        <button class="lang-btn" data-lang="vi" onclick="setLang('vi')">VI</button>
+        <button class="lang-btn" data-lang="en" onclick="setLang('en')">EN</button>
+      </div>
+      <button onclick="doLogout()" style="background:rgba(255,255,255,.08);border:1px solid rgba(255,255,255,.12);color:rgba(255,255,255,.5);font-size:12px;padding:6px 12px;border-radius:8px;cursor:pointer;" data-i18n="logout"></button>
+    </div>
+  </div>
+
+  <div class="kiosk-card">
+    <div id="emp-big-clock" class="kiosk-clock" style="margin-bottom:4px;"></div>
+    <div id="emp-big-date" class="kiosk-date" style="margin-bottom:24px;"></div>
+
+    <div id="emp-kiosk-avatar" class="kiosk-avatar" style="margin-bottom:8px;"></div>
+    <div id="emp-kiosk-name" style="text-align:center;font-weight:800;font-size:20px;color:var(--navy);margin-bottom:4px;"></div>
+    <div id="emp-kiosk-dept" style="text-align:center;font-size:12px;color:#94A3B8;margin-bottom:20px;"></div>
+
+    <div id="emp-kiosk-status" style="margin-bottom:16px;padding:12px;border-radius:14px;text-align:center;font-size:14px;font-weight:600;"></div>
+
+    <button id="emp-punch-btn" class="punch-btn clockin" onclick="handleEmpPunch()" style="margin-bottom:20px;"></button>
+
+    <div style="border-top:1px solid #F1F5F9;padding-top:16px;">
+      <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:10px;">
+        <span style="font-size:12px;font-weight:600;color:#64748B;text-transform:uppercase;letter-spacing:.4px;" data-i18n="today"></span>
+        <span id="emp-today-total" style="font-family:'JetBrains Mono',monospace;font-size:13px;font-weight:700;color:var(--navy);"></span>
+      </div>
+      <div id="emp-today-recs" style="display:flex;flex-direction:column;gap:8px;"></div>
+    </div>
+  </div>
+
+  <!-- MONTHLY HISTORY CARD -->
+  <div style="background:white;border-radius:24px;padding:24px;box-shadow:0 4px 24px rgba(0,0,0,.1);max-width:520px;width:100%;margin:16px auto 40px;">
+    <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:16px;">
+      <button onclick="empChangeMonth(-1)" style="width:38px;height:38px;border-radius:50%;background:#F1F5F9;border:none;font-size:22px;cursor:pointer;display:flex;align-items:center;justify-content:center;color:#374151;transition:background .15s;" onmouseover="this.style.background='#E2E8F0'" onmouseout="this.style.background='#F1F5F9'">‹</button>
+      <div style="text-align:center;">
+        <div id="emp-month-label" style="font-weight:800;font-size:17px;color:var(--navy);"></div>
+        <div style="font-size:11px;color:#94A3B8;margin-top:2px;" data-i18n="monthHistorySub"></div>
+      </div>
+      <button id="emp-month-next" onclick="empChangeMonth(1)" style="width:38px;height:38px;border-radius:50%;background:#F1F5F9;border:none;font-size:22px;cursor:pointer;display:flex;align-items:center;justify-content:center;color:#374151;transition:background .15s;" onmouseover="this.style.background='#E2E8F0'" onmouseout="this.style.background='#F1F5F9'">›</button>
+    </div>
+    <div id="emp-month-stats" style="display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin-bottom:16px;"></div>
+    <div id="emp-month-detail"></div>
+  </div>
+</div>
+
+<!-- ════════════════════════════════════════
+     MODAL: ADD / EDIT EMPLOYEE
+════════════════════════════════════════ -->
+<div id="emp-modal" class="modal-overlay hidden" onclick="if(event.target===this)closeEmpModal()">
+  <div class="modal-box">
+    <h3 id="emp-modal-title" style="font-weight:800;font-size:17px;color:var(--navy);margin-bottom:16px;"></h3>
+    <div style="display:flex;flex-direction:column;gap:12px;">
+      <div>
+        <label style="font-size:11px;font-weight:600;color:#64748B;margin-bottom:6px;display:block;" data-i18n="empNameLabel"></label>
+        <input id="m-name" type="text" class="inp" data-i18n-ph="empNamePh">
+      </div>
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;">
+        <div>
+          <label style="font-size:11px;font-weight:600;color:#64748B;margin-bottom:6px;display:block;" data-i18n="hourlyRateLabel"></label>
+          <input id="m-rate" type="number" class="inp" placeholder="0" min="0" step="0.01">
+        </div>
+        <div>
+          <label style="font-size:11px;font-weight:600;color:#64748B;margin-bottom:6px;display:block;" data-i18n="currencyLabel"></label>
+          <select id="m-currency" class="inp"><option value="VND" data-i18n="currVND"></option><option value="USD" data-i18n="currUSD"></option></select>
+        </div>
+      </div>
+      <div>
+        <label style="font-size:11px;font-weight:600;color:#64748B;margin-bottom:6px;display:block;" data-i18n="deptNotesLabel"></label>
+        <input id="m-notes" type="text" class="inp" data-i18n-ph="deptNotesPh">
+      </div>
+      <div style="background:#FFFBEB;border:1.5px solid #FDE68A;border-radius:12px;padding:14px;">
+        <label style="font-size:11px;font-weight:700;color:#92400E;margin-bottom:6px;display:flex;align-items:center;gap:5px;">
+          🔑 <span data-i18n="loginPwLabel"></span>
+        </label>
+        <div class="pw-wrap">
+          <input id="m-pw" type="password" class="inp" data-i18n-ph="empPwPhAdd" style="padding-right:38px;">
+          <span class="pw-eye" onclick="togglePw('m-pw',this)" style="color:#92400E;">👁</span>
+        </div>
+        <div style="font-size:11px;color:#92400E;margin-top:6px;opacity:.8;" data-i18n="pwHint"></div>
+      </div>
+    </div>
+    <div style="display:flex;gap:10px;margin-top:18px;">
+      <button class="btn btn-outline" style="flex:1;" onclick="closeEmpModal()" data-i18n="cancel"></button>
+      <button class="btn btn-primary" style="flex:1;" onclick="saveEmp()" data-i18n="save"></button>
+    </div>
+    <input type="hidden" id="m-emp-id">
+  </div>
+</div>
+
+<!-- ════════════════════════════════════════
+     MODAL: ADD / EDIT RECORD
+════════════════════════════════════════ -->
+<div id="rec-modal" class="modal-overlay hidden" onclick="if(event.target===this)closeRecModal()">
+  <div class="modal-box">
+    <div style="display:flex;align-items:center;gap:8px;margin-bottom:16px;">
+      <h3 id="rec-modal-title" style="font-weight:800;font-size:17px;color:var(--navy);flex:1;"></h3>
+      <span class="admin-only-badge" data-i18n="adminOnly"></span>
+    </div>
+    <div style="display:flex;flex-direction:column;gap:12px;">
+      <div>
+        <label style="font-size:11px;font-weight:600;color:#64748B;margin-bottom:6px;display:block;" data-i18n="employeeLabel"></label>
+        <select id="rm-emp" class="inp"><option value="" data-i18n="selectEmployeeOpt"></option></select>
+      </div>
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;">
+        <div>
+          <label style="font-size:11px;font-weight:600;color:#64748B;margin-bottom:6px;display:block;" data-i18n="clockInLabel"></label>
+          <input id="rm-in" type="datetime-local" class="inp">
+        </div>
+        <div>
+          <label style="font-size:11px;font-weight:600;color:#64748B;margin-bottom:6px;display:block;" data-i18n="clockOutLabel"></label>
+          <input id="rm-out" type="datetime-local" class="inp">
+        </div>
+      </div>
+      <div>
+        <label style="font-size:11px;font-weight:600;color:#64748B;margin-bottom:6px;display:block;" data-i18n="reasonNotesLabel"></label>
+        <input id="rm-notes" type="text" class="inp" data-i18n-ph="reasonNotesPh">
+      </div>
+    </div>
+    <div style="display:flex;gap:10px;margin-top:18px;">
+      <button class="btn btn-outline" style="flex:1;" onclick="closeRecModal()" data-i18n="cancel"></button>
+      <button class="btn btn-primary" style="flex:1;" onclick="saveRec()" data-i18n="save"></button>
+    </div>
+    <input type="hidden" id="rm-rec-id">
+  </div>
+</div>
+
+<!-- MODAL: Quick reset password -->
+<div id="pw-reset-modal" class="modal-overlay hidden" onclick="if(event.target===this)closePwResetModal()">
+  <div class="modal-box" style="max-width:380px;">
+    <h3 style="font-weight:800;font-size:17px;color:var(--navy);margin-bottom:6px;" data-i18n="resetPwTitle"></h3>
+    <div id="pw-reset-name" style="font-size:13px;color:#64748B;margin-bottom:16px;"></div>
+    <div class="pw-wrap">
+      <input id="pw-reset-val" type="password" class="inp" data-i18n-ph="newPwPh2" style="padding-right:38px;">
+      <span class="pw-eye" onclick="togglePw('pw-reset-val',this)">👁</span>
+    </div>
+    <div style="font-size:11px;color:#94A3B8;margin-top:6px;" data-i18n="resetPwHint"></div>
+    <div style="display:flex;gap:10px;margin-top:16px;">
+      <button class="btn btn-outline" style="flex:1;" onclick="closePwResetModal()" data-i18n="cancel"></button>
+      <button class="btn btn-amber" style="flex:1;" onclick="savePwReset()" data-i18n="update"></button>
+    </div>
+    <input type="hidden" id="pw-reset-emp-id">
+  </div>
+</div>
+
+<div id="toast" class="hidden"></div>
+
+<script>
+// ════════════════════════════════════════
+// I18N — LANGUAGE DICTIONARY
+// ════════════════════════════════════════
+const I18N = {
+vi: {
+  loginSub: 'Đăng nhập để tiếp tục',
+  passwordLabel: 'Mật khẩu',
+  passwordPlaceholder: 'Nhập mật khẩu của bạn...',
+  loginBtn: 'Đăng nhập →',
+  loginFirstUse: 'Lần đầu dùng: mật khẩu admin mặc định là',
+  errEnterPw: '⚠️ Vui lòng nhập mật khẩu',
+  errMultiMatch: '⚠️ Có nhiều tài khoản trùng mật khẩu này. Liên hệ Admin để đặt mật khẩu riêng.',
+  errWrongPw: '❌ Mật khẩu không đúng',
+  logout: '⎋ Đăng xuất',
+  adminBadge: 'ADMIN',
+  adminName: 'Quản trị viên',
+  tabClock: '⏱ Chấm Công',
+  tabEmp: '👥 Nhân Viên',
+  tabHistory: '📋 Lịch Sử',
+  tabPayroll: '💰 Bảng Lương',
+  tabSettings: '⚙️ Cài Đặt',
+  selectEmployee: 'Chọn nhân viên',
+  selectEmployeeOpt: '-- Tên nhân viên --',
+  chooseEmployeeHint: 'Chọn nhân viên để chấm công',
+  chooseEmployeeToView: 'Chọn nhân viên để xem',
+  today: 'Hôm nay',
+  currentlyWorking: 'Đang làm việc',
+  clockInBtn: '🟢 Clock In',
+  clockOutBtn: '🟥 Clock Out',
+  workingSince: 'Đang làm từ',
+  notStarted: '⏸ Chưa bắt đầu ca làm',
+  notStartedToday: '⏸ Chưa bắt đầu ca làm hôm nay',
+  noRecordsToday: 'Chưa có chấm công hôm nay',
+  totalLabel: 'Tổng',
+  peopleCount: 'người',
+  noOneWorking: 'Không có ai đang làm việc',
+  manualBadge: 'thủ công',
+  fromTime: 'Từ',
+  empListTitle: 'Danh sách nhân viên',
+  empListSub: 'Quản lý tài khoản, lương giờ và mật khẩu đăng nhập',
+  addEmployee: '+ Thêm nhân viên',
+  noEmployees: 'Chưa có nhân viên',
+  noEmployeesHint: 'Nhấn "+ Thêm nhân viên" để bắt đầu',
+  active: 'Hoạt động',
+  paused: 'Dừng',
+  hourlyRate: 'Lương/giờ',
+  totalHoursWorked: 'Tổng giờ đã làm',
+  loginPw: 'Mật khẩu đăng nhập',
+  pwSet: '🔒 Đã đặt',
+  pwNotSet: '⚠️ Chưa có',
+  edit: '✏️ Sửa',
+  activate: '▶ Kích hoạt',
+  pause: '⏸ Dừng',
+  confirmDeleteEmp: 'Xóa nhân viên này?\\n(Dữ liệu chấm công vẫn được giữ lại)',
+  empDeleted: 'Đã xóa nhân viên',
+  historyTitle: 'Lịch sử chấm công',
+  historySub: 'Admin có thể sửa / xóa / thêm bản ghi bất kỳ',
+  addManual: '+ Thêm thủ công',
+  exportCSV: '⬇ Xuất CSV',
+  allEmployees: 'Tất cả nhân viên',
+  allPeriods: 'Tất cả kỳ',
+  period1Long: 'Kỳ 1: Ngày 1 → 15',
+  period2Long: 'Kỳ 2: Ngày 16 → Cuối tháng',
+  period1Short: 'Kỳ 1 (1–15)',
+  period2Short: 'Kỳ 2 (16–cuối)',
+  colEmployee: 'Nhân viên',
+  colDate: 'Ngày',
+  colPeriod: 'Kỳ',
+  colIn: 'Vào',
+  colOut: 'Ra',
+  colHours: 'Giờ làm',
+  colStatus: 'Trạng thái',
+  colAction: 'Thao tác',
+  statusDone: '✔ Hoàn tất',
+  statusWorking: '🟢 Đang làm',
+  workingNow: 'đang làm',
+  noData: 'Không có dữ liệu',
+  tryDifferentFilter: 'Thử thay đổi bộ lọc',
+  recordsCount: 'bản ghi',
+  confirmDeleteRec: 'Xóa bản ghi chấm công này?',
+  recDeleted: 'Đã xóa bản ghi',
+  payrollTitle: 'Tính bảng lương',
+  payrollSub: 'Chọn tháng và kỳ để tính lương tự động',
+  calcPayrollBtn: '📊 Tính lương',
+  noDataThisPeriod: 'Không có dữ liệu kỳ này',
+  totalLaborCost: 'Tổng chi phí nhân công',
+  employeesCount: 'Nhân viên',
+  shiftsCount: 'Ca làm',
+  totalHours: 'Tổng giờ',
+  colDept: 'Phòng ban',
+  colShifts: 'Số Ca',
+  colTotalHours: 'Tổng Giờ',
+  colHourlyRate: 'Lương/Giờ',
+  colAmount: 'Thành Tiền',
+  exportPayrollCSV: '⬇ Xuất bảng lương CSV',
+  adminPwTitle: 'Mật khẩu Admin',
+  adminPwSub: 'Thay đổi mật khẩu tài khoản quản trị',
+  currentPw: 'Mật khẩu hiện tại',
+  currentPwPh: 'Nhập mật khẩu cũ',
+  newPw: 'Mật khẩu mới',
+  newPwPh: 'Mật khẩu mới (tối thiểu 4 ký tự)',
+  confirmPw: 'Xác nhận mật khẩu mới',
+  confirmPwPh: 'Nhập lại mật khẩu mới',
+  updatePwBtn: 'Cập nhật mật khẩu',
+  empPwTitle: 'Mật khẩu nhân viên',
+  empPwSub: 'Xem trạng thái và reset mật khẩu từ đây',
+  changePw: '🔄 Đổi mật khẩu',
+  setPw: '🔑 Đặt mật khẩu',
+  monthHistorySub: 'Lịch sử giờ làm việc',
+  addEmpTitle: 'Thêm nhân viên',
+  editEmpTitle: 'Chỉnh sửa nhân viên',
+  empNameLabel: 'Tên nhân viên *',
+  empNamePh: 'VD: Nguyễn Văn An',
+  hourlyRateLabel: 'Lương/giờ *',
+  currencyLabel: 'Đơn vị tiền',
+  currVND: 'VNĐ',
+  currUSD: 'USD',
+  deptNotesLabel: 'Phòng ban / Ghi chú',
+  deptNotesPh: 'VD: Bộ phận kho',
+  loginPwLabel: 'Mật khẩu đăng nhập',
+  empPwPhAdd: 'Đặt mật khẩu cho nhân viên này',
+  empPwPhEdit: 'Để trống = giữ nguyên mật khẩu cũ',
+  pwHint: 'Để trống nếu chưa muốn đặt. Nhân viên sẽ không đăng nhập được cho đến khi có mật khẩu.',
+  cancel: 'Hủy',
+  save: 'Lưu',
+  addRecTitle: 'Thêm chấm công thủ công',
+  editRecTitle: 'Sửa chấm công',
+  adminOnly: '🔑 Admin only',
+  employeeLabel: 'Nhân viên *',
+  clockInLabel: 'Giờ vào *',
+  clockOutLabel: 'Giờ ra',
+  reasonNotesLabel: 'Lý do / Ghi chú',
+  reasonNotesPh: 'VD: Quên clock in, điều chỉnh giờ...',
+  resetPwTitle: 'Đặt lại mật khẩu',
+  resetPwEmpPrefix: 'Nhân viên:',
+  newPwPh2: 'Mật khẩu mới',
+  resetPwHint: 'Để trống = xóa mật khẩu (nhân viên không đăng nhập được)',
+  update: 'Cập nhật',
+  toastClockedOut: '✅ Đã Clock Out!',
+  toastClockedIn: '✅ Đã Clock In!',
+  toastEnterEmpName: 'Nhập tên nhân viên',
+  toastRateInvalid: 'Lương giờ phải > 0',
+  toastPwClashAdmin: '⚠️ Mật khẩu này đã được sử dụng. Hãy đặt mật khẩu khác.',
+  toastPwClashEmp: '⚠️ Mật khẩu này đã được sử dụng. Hãy đặt mật khẩu khác.',
+  toastUpdated: '✅ Đã cập nhật',
+  toastAdded: '✅ Đã thêm nhân viên',
+  toastSelectEmp: 'Chọn nhân viên',
+  toastEnterClockIn: 'Nhập giờ vào',
+  toastOutAfterIn: 'Giờ ra phải sau giờ vào',
+  toastRecUpdated: '✅ Đã cập nhật bản ghi',
+  toastRecAdded: '✅ Đã thêm bản ghi',
+  toastSelectMonth: 'Chọn tháng',
+  toastExportedCSV: '✅ Đã xuất CSV',
+  toastCurrentPwWrong: 'Mật khẩu hiện tại không đúng',
+  toastPwMinLen: 'Mật khẩu mới tối thiểu 4 ký tự',
+  toastPwMismatch: 'Mật khẩu xác nhận không khớp',
+  toastPwClashEmpAdmin: '⚠️ Mật khẩu này đã được sử dụng. Hãy đặt mật khẩu khác.',
+  toastAdminPwUpdated: '✅ Đã cập nhật mật khẩu admin',
+  toastPwUpdated: '✅ Đã cập nhật mật khẩu',
+  toastPwRemoved: '✅ Đã xóa mật khẩu',
+  noEmployeesYet: 'Chưa có nhân viên nào',
+  noShiftsThisMonth: 'Chưa có ca làm nào trong tháng này',
+  daysWorked: 'ngày làm',
+  workingLabel: 'Đang làm',
+  shiftLabel: 'Ca',
+  workingEllipsis: 'đang làm...',
+  hToday: 'HÔM NAY',
+  hoursShort: 'g',
+  monthTotalPrefix: 'Tổng tháng',
+  dayNamesShort: ['CN','T2','T3','T4','T5','T6','T7'],
+  dayNamesFull: ['Chủ Nhật','Thứ Hai','Thứ Ba','Thứ Tư','Thứ Năm','Thứ Sáu','Thứ Bảy'],
+  seedDept1: 'Bộ phận kho',
+  seedDept2: 'Kế toán',
+  seedDept3: 'IT - Dev',
+},
+en: {
+  loginSub: 'Sign in to continue',
+  passwordLabel: 'Password',
+  passwordPlaceholder: 'Enter your password...',
+  loginBtn: 'Sign In →',
+  loginFirstUse: 'First time? Default admin password is',
+  errEnterPw: '⚠️ Please enter a password',
+  errMultiMatch: '⚠️ Multiple accounts share this password. Ask Admin to set a unique one.',
+  errWrongPw: '❌ Incorrect password',
+  logout: '⎋ Log Out',
+  adminBadge: 'ADMIN',
+  adminName: 'Administrator',
+  tabClock: '⏱ Time Clock',
+  tabEmp: '👥 Employees',
+  tabHistory: '📋 History',
+  tabPayroll: '💰 Payroll',
+  tabSettings: '⚙️ Settings',
+  selectEmployee: 'Select employee',
+  selectEmployeeOpt: '-- Employee name --',
+  chooseEmployeeHint: 'Select an employee to clock in',
+  chooseEmployeeToView: 'Select an employee to view',
+  today: 'Today',
+  currentlyWorking: 'Currently Working',
+  clockInBtn: '🟢 Clock In',
+  clockOutBtn: '🟥 Clock Out',
+  workingSince: 'Working since',
+  notStarted: '⏸ Shift not started',
+  notStartedToday: '⏸ No shift started today',
+  noRecordsToday: 'No records today',
+  totalLabel: 'Total',
+  peopleCount: 'people',
+  noOneWorking: 'No one is currently working',
+  manualBadge: 'manual',
+  fromTime: 'From',
+  empListTitle: 'Employee List',
+  empListSub: 'Manage accounts, hourly rates, and login passwords',
+  addEmployee: '+ Add Employee',
+  noEmployees: 'No employees yet',
+  noEmployeesHint: 'Tap "+ Add Employee" to get started',
+  active: 'Active',
+  paused: 'Paused',
+  hourlyRate: 'Hourly rate',
+  totalHoursWorked: 'Total hours worked',
+  loginPw: 'Login password',
+  pwSet: '🔒 Set',
+  pwNotSet: '⚠️ Not set',
+  edit: '✏️ Edit',
+  activate: '▶ Activate',
+  pause: '⏸ Pause',
+  confirmDeleteEmp: 'Delete this employee?\\n(Time records will be kept)',
+  empDeleted: 'Employee deleted',
+  historyTitle: 'Time Record History',
+  historySub: 'Admin can edit / delete / add any record',
+  addManual: '+ Add Manually',
+  exportCSV: '⬇ Export CSV',
+  allEmployees: 'All employees',
+  allPeriods: 'All periods',
+  period1Long: 'Period 1: Day 1 → 15',
+  period2Long: 'Period 2: Day 16 → End of month',
+  period1Short: 'Period 1 (1–15)',
+  period2Short: 'Period 2 (16–end)',
+  colEmployee: 'Employee',
+  colDate: 'Date',
+  colPeriod: 'Period',
+  colIn: 'In',
+  colOut: 'Out',
+  colHours: 'Hours',
+  colStatus: 'Status',
+  colAction: 'Action',
+  statusDone: '✔ Complete',
+  statusWorking: '🟢 Working',
+  workingNow: 'working',
+  noData: 'No data',
+  tryDifferentFilter: 'Try changing the filters',
+  recordsCount: 'records',
+  confirmDeleteRec: 'Delete this time record?',
+  recDeleted: 'Record deleted',
+  payrollTitle: 'Calculate Payroll',
+  payrollSub: 'Choose a month and period to auto-calculate pay',
+  calcPayrollBtn: '📊 Calculate',
+  noDataThisPeriod: 'No data for this period',
+  totalLaborCost: 'Total labor cost',
+  employeesCount: 'Employees',
+  shiftsCount: 'Shifts',
+  totalHours: 'Total hours',
+  colDept: 'Department',
+  colShifts: 'Shifts',
+  colTotalHours: 'Total Hours',
+  colHourlyRate: 'Hourly Rate',
+  colAmount: 'Amount',
+  exportPayrollCSV: '⬇ Export Payroll CSV',
+  adminPwTitle: 'Admin Password',
+  adminPwSub: 'Change the administrator account password',
+  currentPw: 'Current password',
+  currentPwPh: 'Enter current password',
+  newPw: 'New password',
+  newPwPh: 'New password (min. 4 characters)',
+  confirmPw: 'Confirm new password',
+  confirmPwPh: 'Re-enter new password',
+  updatePwBtn: 'Update password',
+  empPwTitle: 'Employee Passwords',
+  empPwSub: 'View status and reset passwords here',
+  changePw: '🔄 Change password',
+  setPw: '🔑 Set password',
+  monthHistorySub: 'Work hours history',
+  addEmpTitle: 'Add Employee',
+  editEmpTitle: 'Edit Employee',
+  empNameLabel: 'Employee name *',
+  empNamePh: 'e.g. John Smith',
+  hourlyRateLabel: 'Hourly rate *',
+  currencyLabel: 'Currency',
+  currVND: 'VND',
+  currUSD: 'USD',
+  deptNotesLabel: 'Department / Notes',
+  deptNotesPh: 'e.g. Warehouse',
+  loginPwLabel: 'Login password',
+  empPwPhAdd: 'Set a password for this employee',
+  empPwPhEdit: 'Leave blank to keep current password',
+  pwHint: 'Leave blank if not ready yet. The employee cannot log in until a password is set.',
+  cancel: 'Cancel',
+  save: 'Save',
+  addRecTitle: 'Add Manual Time Record',
+  editRecTitle: 'Edit Time Record',
+  adminOnly: '🔑 Admin only',
+  employeeLabel: 'Employee *',
+  clockInLabel: 'Clock in *',
+  clockOutLabel: 'Clock out',
+  reasonNotesLabel: 'Reason / Notes',
+  reasonNotesPh: 'e.g. Forgot to clock in, time adjustment...',
+  resetPwTitle: 'Reset Password',
+  resetPwEmpPrefix: 'Employee:',
+  newPwPh2: 'New password',
+  resetPwHint: 'Leave blank to remove password (employee cannot log in)',
+  update: 'Update',
+  toastClockedOut: '✅ Clocked out!',
+  toastClockedIn: '✅ Clocked in!',
+  toastEnterEmpName: 'Enter employee name',
+  toastRateInvalid: 'Hourly rate must be > 0',
+  toastPwClashAdmin: '⚠️ This password is already in use. Please choose another.',
+  toastPwClashEmp: '⚠️ This password is already in use. Please choose another.',
+  toastUpdated: '✅ Updated',
+  toastAdded: '✅ Employee added',
+  toastSelectEmp: 'Select an employee',
+  toastEnterClockIn: 'Enter clock-in time',
+  toastOutAfterIn: 'Clock-out must be after clock-in',
+  toastRecUpdated: '✅ Record updated',
+  toastRecAdded: '✅ Record added',
+  toastSelectMonth: 'Select a month',
+  toastExportedCSV: '✅ CSV exported',
+  toastCurrentPwWrong: 'Current password is incorrect',
+  toastPwMinLen: 'New password must be at least 4 characters',
+  toastPwMismatch: 'Passwords do not match',
+  toastPwClashEmpAdmin: '⚠️ This password is already in use. Please choose another.',
+  toastAdminPwUpdated: '✅ Admin password updated',
+  toastPwUpdated: '✅ Password updated',
+  toastPwRemoved: '✅ Password removed',
+  noEmployeesYet: 'No employees yet',
+  noShiftsThisMonth: 'No shifts recorded this month',
+  daysWorked: 'days worked',
+  workingLabel: 'Working',
+  shiftLabel: 'Shift',
+  workingEllipsis: 'working...',
+  hToday: 'TODAY',
+  hoursShort: 'h',
+  monthTotalPrefix: 'Total for',
+  dayNamesShort: ['Sun','Mon','Tue','Wed','Thu','Fri','Sat'],
+  dayNamesFull: ['Sunday','Monday','Tuesday','Wednesday','Thursday','Friday','Saturday'],
+  seedDept1: 'Warehouse',
+  seedDept2: 'Accounting',
+  seedDept3: 'IT - Dev',
+},
+};
+
+let CUR_LANG = localStorage.getItem('cc_lang') || 'vi';
+
+function t(key){
+  const v = I18N[CUR_LANG][key];
+  return v !== undefined ? v : (I18N.vi[key] || key);
+}
+
+function setLang(lang){
+  if(!I18N[lang]) return;
+  CUR_LANG = lang;
+  localStorage.setItem('cc_lang', lang);
+  document.getElementById('html-root').lang = lang;
+  applyStaticTranslations();
+  refreshCurrentScreen();
+}
+
+function applyStaticTranslations(){
+  document.querySelectorAll('[data-i18n]').forEach(el=>{
+    const key = el.getAttribute('data-i18n');
+    el.textContent = t(key);
+  });
+  document.querySelectorAll('[data-i18n-ph]').forEach(el=>{
+    const key = el.getAttribute('data-i18n-ph');
+    el.placeholder = t(key);
+  });
+  document.querySelectorAll('.lang-btn').forEach(btn=>{
+    btn.classList.toggle('active', btn.dataset.lang===CUR_LANG);
+  });
+}
+
+// Re-render whichever screen/tab is currently visible, so dynamic content updates language too
+function refreshCurrentScreen(){
+  const sess = AUTH.session();
+  if(!sess){ return; } // login screen: static translations already applied
+  if(sess.role==='admin'){
+    const activeTab = ATABS.find(t=>!document.getElementById('asec-'+t).classList.contains('hidden')) || 'chamcong';
+    adminTab(activeTab);
+  } else {
+    const emp = DB.employees().find(e=>e.id===sess.userId);
+    if(emp) renderEmpKiosk(emp, true);
+  }
+}
+
+// ════════════════════════════════════════
+// DATA LAYER — backed by the ChamCong Pro API (server.js)
+// ════════════════════════════════════════
+let EMPLOYEES = [];
+let RECORDS = [];
+
+const DB = {
+  employees: () => EMPLOYEES,
+  records:   () => RECORDS,
+};
+
+const AUTH = {
+  session:     () => JSON.parse(sessionStorage.getItem('cc_session') || 'null'),
+  saveSession: d  => sessionStorage.setItem('cc_session', JSON.stringify(d)),
+  clearSession:() => sessionStorage.removeItem('cc_session'),
+};
+
+async function api(path, opts={}){
+  const sess = AUTH.session();
+  const headers = Object.assign({'Content-Type':'application/json'}, opts.headers||{});
+  if (sess && sess.token) headers['Authorization'] = 'Bearer '+sess.token;
+  const res = await fetch('/api'+path, {...opts, headers});
+  let data = null;
+  try { data = await res.json(); } catch(e) {}
+  if (res.status === 401) {
+    AUTH.clearSession();
+    boot();
+    throw Object.assign(new Error('unauthorized'), {code:'unauthorized'});
+  }
+  if (!res.ok) throw Object.assign(new Error((data&&data.error)||'error'), {code: data&&data.error});
+  return data;
+}
+
+async function syncEmployees(){ EMPLOYEES = await api('/employees'); }
+async function syncRecords(){ RECORDS = await api('/records'); }
+
+// ════════════════════════════════════════
+// FORMATTERS
+// ════════════════════════════════════════
+function fmtCur(v, c='VND') {
+  return c==='USD'
+    ? new Intl.NumberFormat('en-US',{style:'currency',currency:'USD'}).format(v)
+    : new Intl.NumberFormat('vi-VN',{style:'currency',currency:'VND',maximumFractionDigits:0}).format(v);
+}
+function fmtTime(iso) {
+  if (!iso) return '--:--';
+  return new Date(iso).toLocaleTimeString(CUR_LANG==='vi'?'vi-VN':'en-US',{hour:'2-digit',minute:'2-digit'});
+}
+function fmtDT(iso) {
+  if (!iso) return '—';
+  return new Date(iso).toLocaleString(CUR_LANG==='vi'?'vi-VN':'en-US',{day:'2-digit',month:'2-digit',year:'numeric',hour:'2-digit',minute:'2-digit'});
+}
+function fmtDate(s) { const [y,m,d]=s.split('-'); return `${d}/${m}/${y}`; }
+function fmtDur(h) {
+  if (h==null) return '—';
+  const hh=Math.floor(h), mm=Math.round((h-hh)*60);
+  return CUR_LANG==='vi' ? `${hh}g ${String(mm).padStart(2,'0')}p` : `${hh}h ${String(mm).padStart(2,'0')}m`;
+}
+function fmtDurC(h) {
+  if (h==null) return '...';
+  const hh=Math.floor(h), mm=Math.round((h-hh)*60);
+  return `${hh}:${String(mm).padStart(2,'0')}`;
+}
+function getDateStr(d=new Date()){
+  return `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}-${String(d.getDate()).padStart(2,'0')}`;
+}
+function getMonthStr(d=new Date()){
+  return `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}`;
+}
+function getPeriod(ds){ return parseInt(ds.split('-')[2])<=15 ? 1 : 2; }
+function empColor(n){
+  const C=['#4F46E5','#0891B2','#059669','#D97706','#DC2626','#7C3AED','#DB2777','#0F766E'];
+  let h=0; for(const c of n) h=(h*31+c.charCodeAt(0))&0xFFFFFF;
+  return C[h%C.length];
+}
+function initials(n){ return n.split(' ').slice(-2).map(w=>w[0]?.toUpperCase()||'').join(''); }
+
+// ════════════════════════════════════════
+// CLOCK
+// ════════════════════════════════════════
+function tickClock(){
+  const now=new Date();
+  const hh=String(now.getHours()).padStart(2,'0');
+  const mm=String(now.getMinutes()).padStart(2,'0');
+  const ss=String(now.getSeconds()).padStart(2,'0');
+  const ts=`${hh}:${mm}:${ss}`;
+  const DN=t('dayNamesFull');
+  const ds=`${DN[now.getDay()]}, ${String(now.getDate()).padStart(2,'0')}/${String(now.getMonth()+1).padStart(2,'0')}/${now.getFullYear()}`;
+
+  const setEl=(id,v)=>{ const e=document.getElementById(id); if(e)e.textContent=v; };
+  setEl('admin-big-clock',ts); setEl('admin-big-date',ds);
+  setEl('emp-big-clock',ts);   setEl('emp-big-date',ds);
+  if(document.getElementById('admin-header-clock'))
+    document.getElementById('admin-header-clock').innerHTML=`${ts}<br><span style="font-size:10px;font-family:Inter,sans-serif;">${ds}</span>`;
+
+  document.querySelectorAll('.elapsed-timer').forEach(el=>{
+    const s=el.dataset.since; if(!s) return;
+    el.textContent=fmtDurC((Date.now()-new Date(s))/3600000);
+  });
+}
+setInterval(tickClock,1000);
+
+// ════════════════════════════════════════
+// PASSWORD TOGGLE
+// ════════════════════════════════════════
+function togglePw(id, eyeEl){
+  const inp=document.getElementById(id);
+  if(!inp) return;
+  inp.type = inp.type==='password' ? 'text' : 'password';
+  eyeEl.textContent = inp.type==='password' ? '👁' : '🙈';
+}
+
+// ════════════════════════════════════════
+// AUTH
+// ════════════════════════════════════════
+async function doLogin(){
+  const pw    = document.getElementById('login-pw').value;
+  const errEl = document.getElementById('login-err');
+  errEl.textContent = '';
+
+  if (!pw) { errEl.textContent = t('errEnterPw'); return; }
+
+  let data;
+  try {
+    const res = await fetch('/api/login', { method:'POST', headers:{'Content-Type':'application/json'}, body: JSON.stringify({password:pw}) });
+    data = await res.json();
+    if (!res.ok) {
+      errEl.textContent = data.error==='multi' ? t('errMultiMatch') : t('errWrongPw');
+      return;
+    }
+  } catch(e) {
+    errEl.textContent = t('errWrongPw');
+    return;
+  }
+
+  AUTH.saveSession({ userId:data.userId, role:data.role, name:data.name, token:data.token });
+  document.getElementById('login-pw').value = '';
+  if (data.role === 'admin') await loadAdminApp();
+  else await loadEmployeeApp({ id:data.userId, name:data.name, notes:data.notes||'' });
+}
+
+function doLogout(){
+  AUTH.clearSession();
+  clearInterval(_adminPollT);
+  document.getElementById('screen-admin').classList.add('hidden');
+  document.getElementById('screen-employee').classList.add('hidden');
+  document.getElementById('screen-login').style.display='flex';
+  document.getElementById('login-pw').value = '';
+  document.getElementById('login-err').textContent = '';
+}
+
+// ════════════════════════════════════════
+// APP ROUTING
+// ════════════════════════════════════════
+async function boot(){
+  applyStaticTranslations();
+  tickClock();
+  const sess=AUTH.session();
+  if (!sess) {
+    document.getElementById('screen-login').style.display='flex';
+    return;
+  }
+  try {
+    const me = await api('/me');
+    if (me.role==='admin') await loadAdminApp();
+    else await loadEmployeeApp({ id:me.userId, name:me.name, notes:me.notes||'' });
+  } catch(e) {
+    AUTH.clearSession();
+    document.getElementById('screen-login').style.display='flex';
+  }
+}
+
+async function loadAdminApp(){
+  document.getElementById('screen-login').style.display='none';
+  document.getElementById('screen-employee').classList.add('hidden');
+  document.getElementById('screen-admin').classList.remove('hidden');
+  applyStaticTranslations();
+  await syncEmployees();
+  await syncRecords();
+  adminTab('chamcong');
+  startAdminPolling();
+}
+
+async function loadEmployeeApp(emp){
+  document.getElementById('screen-login').style.display='none';
+  document.getElementById('screen-admin').classList.add('hidden');
+  document.getElementById('screen-employee').classList.remove('hidden');
+  applyStaticTranslations();
+  await syncRecords();
+  renderEmpKiosk(emp);
+}
+
+let _adminPollT=null;
+function startAdminPolling(){
+  clearInterval(_adminPollT);
+  _adminPollT = setInterval(async ()=>{
+    const sess=AUTH.session();
+    if (!sess || sess.role!=='admin' || document.getElementById('screen-admin').classList.contains('hidden')) return;
+    try {
+      await syncRecords();
+      renderAdminActiveList();
+      if (!document.getElementById('asec-chamcong').classList.contains('hidden')) aOnEmpChange();
+    } catch(e) {}
+  }, 15000);
+}
+
+// ════════════════════════════════════════
+// ADMIN — TABS
+// ════════════════════════════════════════
+const ATABS=['chamcong','nhanvien','lichsu','bangluong','caidat'];
+function adminTab(name){
+  ATABS.forEach(t=>{
+    document.getElementById('asec-'+t).classList.toggle('hidden', t!==name);
+    document.getElementById('atab-'+t).classList.toggle('active', t===name);
+  });
+  applyStaticTranslations();
+  if(name==='chamcong')  renderAdminClockIn();
+  if(name==='nhanvien')  renderEmployees();
+  if(name==='lichsu')    { initRecFilters(); renderRecs(); }
+  if(name==='bangluong') {
+    const now=new Date();
+    if(!document.getElementById('pay-month').value) document.getElementById('pay-month').value=getMonthStr(now);
+    if(!document.getElementById('pay-period').value) document.getElementById('pay-period').value=String(getPeriod(getDateStr(now)));
+    document.getElementById('payroll-result').innerHTML='';
+  }
+  if(name==='caidat') renderSettings();
+}
+
+// ════════════════════════════════════════
+// ADMIN — CLOCK IN/OUT OVERVIEW
+// ════════════════════════════════════════
+function renderAdminClockIn(){
+  const emps=DB.employees().filter(e=>e.active!==false);
+  const sel=document.getElementById('asel-emp');
+  const cur=sel.value;
+  sel.innerHTML=`<option value="">${t('selectEmployeeOpt')}</option>`;
+  emps.forEach(e=>{ const o=document.createElement('option'); o.value=e.id; o.textContent=e.name; sel.appendChild(o); });
+  if(cur) sel.value=cur;
+  renderAdminActiveList();
+  aOnEmpChange();
+}
+
+function aOnEmpChange(){
+  const empId=document.getElementById('asel-emp').value;
+  const btn=document.getElementById('apunch-btn');
+  const st=document.getElementById('apunch-status');
+  const hint=document.getElementById('ano-emp-hint');
+
+  if(!empId){
+    btn.classList.add('hidden'); st.classList.add('hidden'); hint.classList.remove('hidden');
+    document.getElementById('atoday-records').innerHTML=`<div class="empty" style="padding:12px 0;"><p>${t('chooseEmployeeToView')}</p></div>`;
+    document.getElementById('atoday-total').textContent='';
+    return;
+  }
+  hint.classList.add('hidden'); btn.classList.remove('hidden'); st.classList.remove('hidden');
+
+  const open=DB.records().find(r=>r.employeeId===empId && !r.clockOut);
+  if(open){
+    btn.textContent=t('clockOutBtn');
+    btn.className='punch-btn clockout';
+    st.style.cssText='margin-bottom:12px;padding:10px;border-radius:12px;font-size:13px;font-weight:500;text-align:center;background:#ECFDF5;color:#065F46;';
+    st.innerHTML=`✅ ${t('workingSince')} <b>${fmtTime(open.clockIn)}</b> · <span class="elapsed-timer" data-since="${open.clockIn}">${fmtDurC((Date.now()-new Date(open.clockIn))/3600000)}</span>`;
+  } else {
+    btn.textContent=t('clockInBtn');
+    btn.className='punch-btn clockin';
+    st.style.cssText='margin-bottom:12px;padding:10px;border-radius:12px;font-size:13px;font-weight:500;text-align:center;background:#F1F5F9;color:#64748B;';
+    st.textContent=t('notStarted');
+  }
+  renderAdminTodayRecs(empId);
+}
+
+async function handleAdminPunch(){
+  const empId=document.getElementById('asel-emp').value;
+  if(!empId) return;
+  const wasOpen = DB.records().some(r=>r.employeeId===empId && !r.clockOut);
+  await api('/punch', {method:'POST', body: JSON.stringify({employeeId:empId})});
+  toast(wasOpen?t('toastClockedOut'):t('toastClockedIn'),'green');
+  await syncRecords();
+  aOnEmpChange(); renderAdminActiveList();
+}
+
+function renderAdminTodayRecs(empId){
+  const today=getDateStr();
+  const recs=DB.records().filter(r=>r.employeeId===empId && r.date===today);
+  const box=document.getElementById('atoday-records');
+  const tot=document.getElementById('atoday-total');
+  if(!recs.length){ box.innerHTML=`<div class="empty" style="padding:10px 0;"><p>${t('noRecordsToday')}</p></div>`; tot.textContent=''; return; }
+  let total=0;
+  box.innerHTML=recs.map(r=>{
+    if(r.durationHours) total+=r.durationHours;
+    const going=!r.clockOut;
+    return `<div style="display:flex;align-items:center;justify-content:space-between;padding:10px 12px;border-radius:12px;margin-bottom:6px;${going?'background:#F0FDF4;border:1px solid #BBF7D0':'background:#F8FAFC;border:1px solid #F1F5F9'}">
+      <div style="font-size:13px;">
+        <span style="font-family:monospace;font-weight:600;">${fmtTime(r.clockIn)}</span>
+        <span style="color:#CBD5E1;margin:0 6px;">→</span>
+        ${r.clockOut?`<span style="font-family:monospace;font-weight:600;">${fmtTime(r.clockOut)}</span>`:`<span style="color:#059669;font-weight:600;font-size:12px;">${t('workingNow')}</span>`}
+        ${r.isManual?`<span class="badge badge-amber" style="margin-left:6px;font-size:10px;">${t('manualBadge')}</span>`:''}
+      </div>
+      <span style="font-family:monospace;font-size:13px;font-weight:700;color:var(--navy);">
+        ${going?`<span class="elapsed-timer" data-since="${r.clockIn}">${fmtDurC((Date.now()-new Date(r.clockIn))/3600000)}</span>`:fmtDurC(r.durationHours)}
+      </span>
+    </div>`;
+  }).join('');
+  tot.textContent=total>0?`${t('totalLabel')}: ${fmtDur(total)}`:'';
+}
+
+function renderAdminActiveList(){
+  const recs=DB.records().filter(r=>!r.clockOut);
+  const cnt=document.getElementById('aactive-count');
+  const lst=document.getElementById('aactive-list');
+  cnt.textContent=`${recs.length} ${t('peopleCount')}`;
+  if(!recs.length){ lst.innerHTML=`<p style="font-size:12px;color:#94A3B8;">${t('noOneWorking')}</p>`; return; }
+  lst.innerHTML=recs.map(r=>{
+    const col=empColor(r.employeeName);
+    return `<div style="display:flex;align-items:center;gap:10px;padding:10px 12px;border-radius:12px;background:#F8FAFC;">
+      <div class="avatar" style="background:${col}18;color:${col};">${initials(r.employeeName)}</div>
+      <div style="flex:1;min-width:0;">
+        <div style="font-weight:600;font-size:13px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">${r.employeeName}</div>
+        <div style="font-size:11px;color:#94A3B8;">${t('fromTime')} ${fmtTime(r.clockIn)}</div>
+      </div>
+      <div class="elapsed-timer" data-since="${r.clockIn}" style="font-family:monospace;font-weight:700;font-size:13px;color:var(--green);">${fmtDurC((Date.now()-new Date(r.clockIn))/3600000)}</div>
+      <div class="live-dot" style="width:8px;height:8px;flex-shrink:0;"></div>
+    </div>`;
+  }).join('');
+}
+
+// ════════════════════════════════════════
+// ADMIN — EMPLOYEE MANAGEMENT
+// ════════════════════════════════════════
+let _editEmpId=null;
+
+function openEmpModal(id=null){
+  _editEmpId=id;
+  const emp=id?DB.employees().find(e=>e.id===id):null;
+  document.getElementById('emp-modal-title').textContent=id?t('editEmpTitle'):t('addEmpTitle');
+  document.getElementById('m-name').value    =emp?.name||'';
+  document.getElementById('m-rate').value    =emp?.hourlyRate||'';
+  document.getElementById('m-currency').value=emp?.currency||'VND';
+  document.getElementById('m-notes').value   =emp?.notes||'';
+  document.getElementById('m-pw').value      ='';
+  document.getElementById('m-pw').placeholder=id?t('empPwPhEdit'):t('empPwPhAdd');
+  document.getElementById('m-emp-id').value  =id||'';
+  document.getElementById('emp-modal').classList.remove('hidden');
+}
+function closeEmpModal(){ document.getElementById('emp-modal').classList.add('hidden'); }
+
+async function saveEmp(){
+  const name=document.getElementById('m-name').value.trim();
+  const rate=parseFloat(document.getElementById('m-rate').value);
+  const cur =document.getElementById('m-currency').value;
+  const notes=document.getElementById('m-notes').value.trim();
+  const pw  =document.getElementById('m-pw').value;
+  if(!name) return toast(t('toastEnterEmpName'),'red');
+  if(!rate||rate<=0) return toast(t('toastRateInvalid'),'red');
+
+  try {
+    if(_editEmpId){
+      await api(`/employees/${_editEmpId}`, {method:'PUT', body: JSON.stringify({name,hourlyRate:rate,currency:cur,notes,password:pw||null})});
+    } else {
+      await api('/employees', {method:'POST', body: JSON.stringify({name,hourlyRate:rate,currency:cur,notes,password:pw||null})});
+    }
+  } catch(e) {
+    if(e.code==='clash-admin') return toast(t('toastPwClashAdmin'),'red');
+    if(e.code==='clash-emp') return toast(t('toastPwClashEmp'),'red');
+    return toast(t('toastRateInvalid'),'red');
+  }
+
+  await syncEmployees(); await syncRecords();
+  closeEmpModal(); renderEmployees();
+  toast(_editEmpId?t('toastUpdated'):t('toastAdded'),'green');
+}
+
+async function toggleEmpActive(id){
+  await api(`/employees/${id}/active`, {method:'PUT'});
+  await syncEmployees(); renderEmployees();
+}
+
+async function deleteEmp(id){
+  if(!confirm(t('confirmDeleteEmp'))) return;
+  await api(`/employees/${id}`, {method:'DELETE'});
+  await syncEmployees();
+  renderEmployees();
+  toast(t('empDeleted'),'green');
+}
+
+function renderEmployees(){
+  const emps=DB.employees();
+  const box=document.getElementById('emp-list');
+  if(!emps.length){
+    box.innerHTML=`<div class="card empty" style="grid-column:1/-1;"><div class="empty-icon">👥</div><h3>${t('noEmployees')}</h3><p>${t('noEmployeesHint')}</p></div>`;
+    return;
+  }
+  box.innerHTML=emps.map(emp=>{
+    const recs=DB.records().filter(r=>r.employeeId===emp.id&&r.durationHours);
+    const totalH=recs.reduce((s,r)=>s+r.durationHours,0);
+    const isActive=emp.active!==false;
+    const col=empColor(emp.name);
+    const hasPw=!!emp.hasPassword;
+    return `<div class="card">
+      <div style="display:flex;align-items:center;gap:12px;margin-bottom:14px;">
+        <div class="avatar" style="width:46px;height:46px;font-size:17px;background:${col}18;color:${col};flex-shrink:0;">${initials(emp.name)}</div>
+        <div style="flex:1;min-width:0;">
+          <div style="font-weight:700;font-size:15px;color:var(--navy);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">${emp.name}</div>
+          <div style="font-size:12px;color:#94A3B8;">${emp.notes||''}</div>
+        </div>
+        <span class="badge ${isActive?'badge-green':'badge-gray'}">${isActive?'🟢':'⏸'} ${isActive?t('active'):t('paused')}</span>
+      </div>
+
+      <div style="background:#F8FAFC;border-radius:12px;padding:12px;margin-bottom:12px;">
+        <div style="display:flex;justify-content:space-between;font-size:13px;margin-bottom:8px;">
+          <span style="color:#64748B;">${t('hourlyRate')}</span>
+          <span style="font-weight:700;font-family:monospace;color:var(--navy);">${fmtCur(emp.hourlyRate,emp.currency)}</span>
+        </div>
+        <div style="display:flex;justify-content:space-between;font-size:13px;margin-bottom:8px;">
+          <span style="color:#64748B;">${t('totalHoursWorked')}</span>
+          <span style="font-weight:600;font-family:monospace;">${fmtDur(totalH)}</span>
+        </div>
+        <div style="display:flex;justify-content:space-between;font-size:13px;align-items:center;">
+          <span style="color:#64748B;">${t('loginPw')}</span>
+          <span class="badge ${hasPw?'badge-green':'badge-gray'}">${hasPw?t('pwSet'):t('pwNotSet')}</span>
+        </div>
+      </div>
+
+      <div style="display:flex;gap:6px;">
+        <button class="btn btn-outline" style="flex:1;font-size:12px;" onclick="openEmpModal('${emp.id}')">${t('edit')}</button>
+        <button class="btn btn-outline" style="flex:1;font-size:12px;" onclick="toggleEmpActive('${emp.id}')">${isActive?t('pause'):t('activate')}</button>
+        <button class="btn btn-danger" style="font-size:12px;padding:9px 10px;" onclick="deleteEmp('${emp.id}')">🗑</button>
+      </div>
+    </div>`;
+  }).join('');
+}
+
+// ════════════════════════════════════════
+// ADMIN — RECORDS
+// ════════════════════════════════════════
+function initRecFilters(){
+  const sel=document.getElementById('f-emp');
+  const cur=sel.value;
+  sel.innerHTML=`<option value="">${t('allEmployees')}</option>`;
+  DB.employees().forEach(e=>{ const o=document.createElement('option'); o.value=e.id; o.textContent=e.name; sel.appendChild(o); });
+  if(cur) sel.value=cur;
+  if(!document.getElementById('f-month').value) document.getElementById('f-month').value=getMonthStr();
+}
+
+function renderRecs(){
+  const ef=document.getElementById('f-emp').value;
+  const mf=document.getElementById('f-month').value;
+  const pf=document.getElementById('f-period').value;
+  let recs=DB.records();
+  if(ef) recs=recs.filter(r=>r.employeeId===ef);
+  if(mf) recs=recs.filter(r=>r.month===mf);
+  if(pf) recs=recs.filter(r=>String(r.period)===pf);
+  recs.sort((a,b)=>new Date(b.clockIn)-new Date(a.clockIn));
+
+  const box=document.getElementById('recs-body');
+  if(!recs.length){ box.innerHTML=`<div class="empty"><div class="empty-icon">📋</div><h3>${t('noData')}</h3><p>${t('tryDifferentFilter')}</p></div>`; return; }
+
+  box.innerHTML=`<table class="data-table">
+    <thead><tr>
+      <th>${t('colEmployee')}</th><th>${t('colDate')}</th><th>${t('colPeriod')}</th><th>${t('colIn')}</th><th>${t('colOut')}</th><th>${t('colHours')}</th><th>${t('colStatus')}</th><th>${t('colAction')}</th>
+    </tr></thead>
+    <tbody>${recs.map(r=>{
+      const col=empColor(r.employeeName);
+      return `<tr>
+        <td><div style="display:flex;align-items:center;gap:7px;">
+          <div class="avatar" style="width:27px;height:27px;font-size:10px;background:${col}18;color:${col};">${initials(r.employeeName)}</div>
+          <span style="font-weight:600;">${r.employeeName}</span>
+        </div></td>
+        <td style="font-family:monospace;font-size:12px;">${fmtDate(r.date)}</td>
+        <td><span class="badge ${r.period===1?'badge-blue':'badge-purple'}">${t('colPeriod')} ${r.period}</span></td>
+        <td style="font-family:monospace;font-weight:600;">${fmtTime(r.clockIn)}</td>
+        <td style="font-family:monospace;">${r.clockOut?fmtTime(r.clockOut):'—'}</td>
+        <td style="font-family:monospace;font-weight:700;color:var(--navy);">${r.durationHours?fmtDur(r.durationHours):(r.clockOut?'—':`<span style="color:#059669">${t('workingNow')}</span>`)}</td>
+        <td>
+          <span class="badge ${r.clockOut?'badge-gray':'badge-green'}">${r.clockOut?t('statusDone'):t('statusWorking')}</span>
+          ${r.isManual?`<span class="badge badge-amber" style="margin-left:3px;font-size:10px;">${t('manualBadge')}</span>`:''}
+        </td>
+        <td><div style="display:flex;gap:4px;">
+          <button class="btn btn-outline" style="padding:5px 8px;font-size:11px;" onclick="openEditRecModal('${r.id}')">✏️</button>
+          <button class="btn btn-danger"  style="padding:5px 8px;font-size:11px;" onclick="deleteRec('${r.id}')">🗑</button>
+        </div></td>
+      </tr>`;
+    }).join('')}</tbody>
+  </table>
+  <div style="margin-top:8px;font-size:11px;color:#94A3B8;">${recs.length} ${t('recordsCount')}</div>`;
+}
+
+function exportRecCSV(){
+  const ef=document.getElementById('f-emp').value;
+  const mf=document.getElementById('f-month').value;
+  const pf=document.getElementById('f-period').value;
+  let recs=DB.records();
+  if(ef) recs=recs.filter(r=>r.employeeId===ef);
+  if(mf) recs=recs.filter(r=>r.month===mf);
+  if(pf) recs=recs.filter(r=>String(r.period)===pf);
+  recs.sort((a,b)=>new Date(b.clockIn)-new Date(a.clockIn));
+  const h=[t('colEmployee'),t('colDate'),t('colPeriod'),t('colIn'),t('colOut'),t('colHours'),t('colStatus'),'Notes'];
+  const rows=recs.map(r=>[r.employeeName,r.date,`${t('colPeriod')} ${r.period}`,fmtDT(r.clockIn),r.clockOut?fmtDT(r.clockOut):'',r.durationHours?r.durationHours.toFixed(4):'',r.clockOut?t('statusDone'):t('statusWorking'),r.notes||'']);
+  dlCSV([h,...rows],`chamcong_${mf||'all'}.csv`);
+  toast(t('toastExportedCSV'),'green');
+}
+
+// ════════════════════════════════════════
+// RECORD MODAL
+// ════════════════════════════════════════
+let _editRecId=null;
+
+function openAddRecModal(){
+  _editRecId=null;
+  document.getElementById('rec-modal-title').textContent=t('addRecTitle');
+  document.getElementById('rm-rec-id').value='';
+  document.getElementById('rm-notes').value='';
+  const sel=document.getElementById('rm-emp');
+  sel.innerHTML=`<option value="">${t('selectEmployeeOpt')}</option>`;
+  DB.employees().filter(e=>e.active!==false).forEach(e=>{
+    const o=document.createElement('option'); o.value=e.id; o.textContent=e.name; sel.appendChild(o);
+  });
+  sel.value='';
+  const now=new Date();
+  const pad=n=>String(n).padStart(2,'0');
+  const dt=`${now.getFullYear()}-${pad(now.getMonth()+1)}-${pad(now.getDate())}T${pad(now.getHours())}:${pad(now.getMinutes())}`;
+  document.getElementById('rm-in').value=dt;
+  document.getElementById('rm-out').value='';
+  document.getElementById('rec-modal').classList.remove('hidden');
+}
+
+function openEditRecModal(id){
+  const rec=DB.records().find(r=>r.id===id);
+  if(!rec) return;
+  _editRecId=id;
+  document.getElementById('rec-modal-title').textContent=t('editRecTitle');
+  document.getElementById('rm-rec-id').value=id;
+  document.getElementById('rm-notes').value=rec.notes||'';
+  const sel=document.getElementById('rm-emp');
+  sel.innerHTML=`<option value="">${t('selectEmployeeOpt')}</option>`;
+  DB.employees().forEach(e=>{ const o=document.createElement('option'); o.value=e.id; o.textContent=e.name; sel.appendChild(o); });
+  sel.value=rec.employeeId;
+  const toLocal=iso=>{ if(!iso) return ''; const d=new Date(iso),pad=n=>String(n).padStart(2,'0'); return `${d.getFullYear()}-${pad(d.getMonth()+1)}-${pad(d.getDate())}T${pad(d.getHours())}:${pad(d.getMinutes())}`; };
+  document.getElementById('rm-in').value=toLocal(rec.clockIn);
+  document.getElementById('rm-out').value=toLocal(rec.clockOut);
+  document.getElementById('rec-modal').classList.remove('hidden');
+}
+
+function closeRecModal(){ document.getElementById('rec-modal').classList.add('hidden'); }
+
+async function saveRec(){
+  const empId=document.getElementById('rm-emp').value;
+  const inV  =document.getElementById('rm-in').value;
+  const outV =document.getElementById('rm-out').value;
+  const notes=document.getElementById('rm-notes').value.trim();
+  if(!empId) return toast(t('toastSelectEmp'),'red');
+  if(!inV)   return toast(t('toastEnterClockIn'),'red');
+  const ci=new Date(inV), co=outV?new Date(outV):null;
+  if(co&&co<=ci) return toast(t('toastOutAfterIn'),'red');
+
+  try {
+    const body = JSON.stringify({employeeId:empId, clockIn:ci.toISOString(), clockOut:co?co.toISOString():null, notes});
+    if(_editRecId) await api(`/records/${_editRecId}`, {method:'PUT', body});
+    else await api('/records', {method:'POST', body});
+  } catch(e) {
+    return toast(t('toastOutAfterIn'),'red');
+  }
+  await syncRecords();
+  closeRecModal(); renderRecs();
+  toast(_editRecId?t('toastRecUpdated'):t('toastRecAdded'),'green');
+}
+
+async function deleteRec(id){
+  if(!confirm(t('confirmDeleteRec'))) return;
+  await api(`/records/${id}`, {method:'DELETE'});
+  await syncRecords(); renderRecs();
+  toast(t('recDeleted'),'green');
+}
+
+// ════════════════════════════════════════
+// ADMIN — PAYROLL
+// ════════════════════════════════════════
+function calcPayroll(){
+  const month=document.getElementById('pay-month').value;
+  const period=parseInt(document.getElementById('pay-period').value);
+  if(!month) return toast(t('toastSelectMonth'),'red');
+  const emps=DB.employees();
+  const allR=DB.records().filter(r=>r.month===month&&r.period===period&&r.durationHours);
+  const entries=emps.map(emp=>{
+    const recs=allR.filter(r=>r.employeeId===emp.id);
+    const totalH=recs.reduce((s,r)=>s+r.durationHours,0);
+    return {emp,recs,totalH,grossPay:totalH*emp.hourlyRate};
+  }).filter(e=>e.totalH>0);
+
+  const box=document.getElementById('payroll-result');
+  if(!entries.length){ box.innerHTML=`<div class="card empty"><div class="empty-icon">💸</div><h3>${t('noDataThisPeriod')}</h3></div>`; return; }
+
+  const [yr,mon]=month.split('-');
+  const pLabel=period===1?`01/${mon}/${yr} → 15/${mon}/${yr}`:`16/${mon}/${yr} → ${CUR_LANG==='vi'?'cuối tháng':'end of month'}`;
+  const totals={};
+  entries.forEach(e=>{ const c=e.emp.currency; totals[c]=(totals[c]||0)+e.grossPay; });
+
+  box.innerHTML=`
+  <div class="pay-card" style="margin-bottom:16px;">
+    <div style="display:flex;align-items:flex-start;justify-content:space-between;margin-bottom:16px;flex-wrap:wrap;gap:12px;">
+      <div>
+        <div style="font-size:11px;font-weight:700;letter-spacing:.6px;text-transform:uppercase;color:rgba(255,255,255,.5);margin-bottom:4px;">${t('colPeriod')} ${period} · ${mon}/${yr}</div>
+        <div style="font-weight:700;font-size:15px;">${pLabel}</div>
+      </div>
+      <div style="text-align:right;">
+        ${Object.entries(totals).map(([c,v])=>`<div style="font-weight:800;font-size:22px;font-family:monospace;">${fmtCur(v,c)}</div>`).join('')}
+        <div style="font-size:11px;color:rgba(255,255,255,.4);margin-top:2px;">${t('totalLaborCost')}</div>
+      </div>
+    </div>
+    <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:12px;padding-top:14px;border-top:1px solid rgba(255,255,255,.12);">
+      <div><div style="font-size:22px;font-weight:800;">${entries.length}</div><div style="font-size:11px;color:rgba(255,255,255,.45);">${t('employeesCount')}</div></div>
+      <div><div style="font-size:22px;font-weight:800;">${entries.reduce((s,e)=>s+e.recs.length,0)}</div><div style="font-size:11px;color:rgba(255,255,255,.45);">${t('shiftsCount')}</div></div>
+      <div><div style="font-size:22px;font-weight:800;font-family:monospace;">${fmtDurC(entries.reduce((s,e)=>s+e.totalH,0))}</div><div style="font-size:11px;color:rgba(255,255,255,.45);">${t('totalHours')}</div></div>
+    </div>
+  </div>
+  <div class="card" style="margin-bottom:16px;overflow-x:auto;">
+    <table class="data-table">
+      <thead><tr><th>${t('colEmployee')}</th><th>${t('colDept')}</th><th>${t('colShifts')}</th><th>${t('colTotalHours')}</th><th>${t('colHourlyRate')}</th><th style="text-align:right;">${t('colAmount')}</th></tr></thead>
+      <tbody>${entries.map(e=>{
+        const col=empColor(e.emp.name);
+        return `<tr>
+          <td><div style="display:flex;align-items:center;gap:8px;">
+            <div class="avatar" style="width:30px;height:30px;font-size:11px;background:${col}18;color:${col};">${initials(e.emp.name)}</div>
+            <span style="font-weight:600;">${e.emp.name}</span>
+          </div></td>
+          <td style="color:#94A3B8;font-size:12px;">${e.emp.notes||'—'}</td>
+          <td style="text-align:center;font-weight:600;">${e.recs.length}</td>
+          <td><span style="font-family:monospace;font-weight:700;color:var(--navy);">${fmtDur(e.totalH)}</span><br><span style="font-size:11px;color:#94A3B8;">${e.totalH.toFixed(2)}h</span></td>
+          <td style="font-family:monospace;font-size:12px;">${fmtCur(e.emp.hourlyRate,e.emp.currency)}</td>
+          <td style="text-align:right;"><span style="font-family:monospace;font-weight:800;font-size:15px;color:var(--green);">${fmtCur(e.grossPay,e.emp.currency)}</span></td>
+        </tr>`;
+      }).join('')}</tbody>
+    </table>
+  </div>
+  <div style="display:flex;justify-content:flex-end;">
+    <button class="btn btn-success" onclick="exportPayCSV(${period},'${month}')">${t('exportPayrollCSV')}</button>
+  </div>`;
+
+  window._lastPayroll={entries,period,month};
+}
+
+function exportPayCSV(period,month){
+  const d=window._lastPayroll; if(!d) return;
+  const [yr,mon]=month.split('-');
+  const h=[t('colEmployee'),t('colDept'),t('colShifts'),`${t('colTotalHours')} (h)`,t('colHourlyRate'),'Currency',t('colAmount')];
+  const rows=d.entries.map(e=>[e.emp.name,e.emp.notes||'',e.recs.length,e.totalH.toFixed(4),e.emp.hourlyRate,e.emp.currency,e.grossPay.toFixed(2)]);
+  dlCSV([h,...rows],`payroll_p${period}_${mon}_${yr}.csv`);
+  toast(t('toastExportedCSV'),'green');
+}
+
+// ════════════════════════════════════════
+// ADMIN — SETTINGS
+// ════════════════════════════════════════
+async function changeAdminPw(){
+  const old=document.getElementById('old-pw').value;
+  const nw =document.getElementById('new-pw').value;
+  const nw2=document.getElementById('new-pw2').value;
+  if(nw.length<4) return toast(t('toastPwMinLen'),'red');
+  if(nw!==nw2) return toast(t('toastPwMismatch'),'red');
+  try {
+    await api('/admin-password', {method:'PUT', body: JSON.stringify({oldPassword:old, newPassword:nw})});
+  } catch(e) {
+    if(e.code==='wrong-old') return toast(t('toastCurrentPwWrong'),'red');
+    if(e.code==='clash-emp') return toast(t('toastPwClashEmpAdmin'),'red');
+    if(e.code==='min-len') return toast(t('toastPwMinLen'),'red');
+    return toast(t('toastPwMismatch'),'red');
+  }
+  document.getElementById('old-pw').value='';
+  document.getElementById('new-pw').value='';
+  document.getElementById('new-pw2').value='';
+  toast(t('toastAdminPwUpdated'),'green');
+}
+
+let _pwResetId=null;
+function openPwResetModal(id,name){
+  _pwResetId=id;
+  document.getElementById('pw-reset-emp-id').value=id;
+  document.getElementById('pw-reset-name').textContent=`${t('resetPwEmpPrefix')} ${name}`;
+  document.getElementById('pw-reset-val').value='';
+  document.getElementById('pw-reset-modal').classList.remove('hidden');
+}
+function closePwResetModal(){ document.getElementById('pw-reset-modal').classList.add('hidden'); }
+async function savePwReset(){
+  const id=document.getElementById('pw-reset-emp-id').value;
+  const pw=document.getElementById('pw-reset-val').value;
+
+  try {
+    await api(`/employees/${id}/password`, {method:'PUT', body: JSON.stringify({password:pw||null})});
+  } catch(e) {
+    if(e.code==='clash-admin') return toast(t('toastPwClashAdmin'),'red');
+    if(e.code==='clash-emp') return toast(t('toastPwClashEmp'),'red');
+    return toast(t('toastPwClashEmp'),'red');
+  }
+  await syncEmployees();
+  closePwResetModal(); renderSettings();
+  toast(pw?t('toastPwUpdated'):t('toastPwRemoved'),'green');
+}
+
+function renderSettings(){
+  const emps=DB.employees();
+  const box=document.getElementById('emp-pw-list');
+  if(!emps.length){ box.innerHTML=`<div class="empty" style="padding:20px 0;"><p>${t('noEmployeesYet')}</p></div>`; return; }
+  box.innerHTML=emps.map(emp=>{
+    const hasPw=!!emp.hasPassword;
+    const col=empColor(emp.name);
+    return `<div style="display:flex;align-items:center;gap:12px;padding:12px 0;border-bottom:1px solid #F1F5F9;">
+      <div class="avatar" style="background:${col}18;color:${col};">${initials(emp.name)}</div>
+      <div style="flex:1;min-width:0;">
+        <div style="font-weight:600;font-size:14px;">${emp.name}</div>
+        <div style="font-size:11px;color:#94A3B8;">${emp.notes||''}</div>
+      </div>
+      <span class="badge ${hasPw?'badge-green':'badge-gray'}" style="flex-shrink:0;">${hasPw?t('pwSet'):t('pwNotSet')}</span>
+      <button class="btn btn-outline" style="font-size:12px;padding:7px 12px;flex-shrink:0;" onclick="openPwResetModal('${emp.id}','${emp.name.replace(/'/g,'')}')">
+        ${hasPw?t('changePw'):t('setPw')}
+      </button>
+    </div>`;
+  }).join('');
+}
+
+// ════════════════════════════════════════
+// EMPLOYEE KIOSK
+// ════════════════════════════════════════
+let _empViewMonth = getMonthStr();
+
+function renderEmpKiosk(emp, keepMonth){
+  const col=empColor(emp.name);
+  const avatarEl=document.getElementById('emp-kiosk-avatar');
+  avatarEl.style.background=`${col}18`;
+  avatarEl.style.color=col;
+  avatarEl.textContent=initials(emp.name);
+  document.getElementById('emp-kiosk-name').textContent=emp.name;
+  document.getElementById('emp-kiosk-dept').textContent=emp.notes||'';
+  if(!keepMonth) _empViewMonth = getMonthStr();
+  refreshEmpKiosk(emp.id);
+}
+
+function refreshEmpKiosk(empId){
+  const open=DB.records().find(r=>r.employeeId===empId&&!r.clockOut);
+  const btn=document.getElementById('emp-punch-btn');
+  const st =document.getElementById('emp-kiosk-status');
+
+  if(open){
+    btn.textContent=t('clockOutBtn');
+    btn.className='punch-btn clockout';
+    st.style.cssText='padding:12px 16px;border-radius:14px;text-align:center;font-size:14px;font-weight:600;background:#ECFDF5;color:#065F46;border:1.5px solid #A7F3D0;margin-bottom:16px;';
+    st.innerHTML=`✅ ${t('workingSince')} <b>${fmtTime(open.clockIn)}</b><br><span style="font-size:12px;font-weight:400;">${t('totalLabel')}: <span class="elapsed-timer" data-since="${open.clockIn}">${fmtDurC((Date.now()-new Date(open.clockIn))/3600000)}</span></span>`;
+  } else {
+    btn.textContent=t('clockInBtn');
+    btn.className='punch-btn clockin';
+    st.style.cssText='padding:12px 16px;border-radius:14px;text-align:center;font-size:14px;font-weight:600;background:#F8FAFC;color:#64748B;border:1.5px solid #E2E8F0;margin-bottom:16px;';
+    st.textContent=t('notStartedToday');
+  }
+
+  renderEmpTodayRecs(empId);
+  renderEmpMonthly(empId, _empViewMonth);
+}
+
+async function handleEmpPunch(){
+  const sess=AUTH.session();
+  if(!sess||sess.role!=='employee') return;
+  const empId=sess.userId;
+  const wasOpen = DB.records().some(r=>r.employeeId===empId && !r.clockOut);
+  await api('/punch', {method:'POST', body: JSON.stringify({})});
+  toast(wasOpen?t('toastClockedOut'):t('toastClockedIn'),'green');
+  await syncRecords();
+  refreshEmpKiosk(empId);
+}
+
+function renderEmpTodayRecs(empId){
+  const today=getDateStr();
+  const recs=DB.records().filter(r=>r.employeeId===empId&&r.date===today);
+  const box=document.getElementById('emp-today-recs');
+  const tot=document.getElementById('emp-today-total');
+  if(!recs.length){ box.innerHTML=`<div style="text-align:center;padding:12px 0;color:#94A3B8;font-size:13px;">${t('noRecordsToday')}</div>`; tot.textContent=''; return; }
+  let total=0;
+  box.innerHTML=recs.map(r=>{
+    if(r.durationHours) total+=r.durationHours;
+    const going=!r.clockOut;
+    return `<div style="display:flex;align-items:center;justify-content:space-between;padding:10px 12px;border-radius:12px;${going?'background:#F0FDF4;border:1px solid #BBF7D0':'background:#F8FAFC;border:1px solid #E2E8F0'}">
+      <div style="font-size:13px;">
+        <span style="font-family:monospace;font-weight:600;">${fmtTime(r.clockIn)}</span>
+        <span style="color:#CBD5E1;margin:0 6px;">→</span>
+        ${r.clockOut?`<span style="font-family:monospace;font-weight:600;">${fmtTime(r.clockOut)}</span>`:`<span style="color:#059669;font-weight:600;font-size:12px;">${t('workingNow')}</span>`}
+      </div>
+      <span style="font-family:monospace;font-size:13px;font-weight:700;color:var(--navy);">
+        ${going?`<span class="elapsed-timer" data-since="${r.clockIn}">${fmtDurC((Date.now()-new Date(r.clockIn))/3600000)}</span>`:fmtDurC(r.durationHours)}
+      </span>
+    </div>`;
+  }).join('');
+  tot.textContent=total>0?`${t('totalLabel')}: ${fmtDur(total)}`:'';
+}
+
+// ════════════════════════════════════════
+// EMPLOYEE MONTHLY VIEW
+// ════════════════════════════════════════
+function empChangeMonth(delta){
+  const sess=AUTH.session();
+  if(!sess||sess.role!=='employee') return;
+  const [yr,mon]=_empViewMonth.split('-').map(Number);
+  const d=new Date(yr, mon-1+delta, 1);
+  const next=getMonthStr(d);
+  if(next>getMonthStr()) return;
+  _empViewMonth=next;
+  renderEmpMonthly(sess.userId, _empViewMonth);
+}
+
+function renderEmpMonthly(empId, month){
+  const allRecs = DB.records().filter(r=>r.employeeId===empId && r.month===month);
+  const doneRecs = allRecs.filter(r=>r.durationHours!=null);
+  const openRec  = allRecs.find(r=>!r.clockOut);
+
+  const byDate={};
+  doneRecs.forEach(r=>{
+    if(!byDate[r.date]) byDate[r.date]=[];
+    byDate[r.date].push(r);
+  });
+  const sortedDates=Object.keys(byDate).sort();
+
+  const p1H=doneRecs.filter(r=>r.period===1).reduce((s,r)=>s+r.durationHours,0);
+  const p2H=doneRecs.filter(r=>r.period===2).reduce((s,r)=>s+r.durationHours,0);
+  const totalH=p1H+p2H;
+  const [yr,mon]=month.split('-');
+  const isCurrent = month>=getMonthStr();
+
+  const lbl=document.getElementById('emp-month-label');
+  if(lbl) lbl.textContent=`${CUR_LANG==='vi'?'Tháng':'Month'} ${mon}/${yr}`;
+  const nxtBtn=document.getElementById('emp-month-next');
+  if(nxtBtn){ nxtBtn.style.opacity=isCurrent?'0.3':'1'; nxtBtn.style.pointerEvents=isCurrent?'none':'auto'; }
+
+  const statsEl=document.getElementById('emp-month-stats');
+  if(statsEl) statsEl.innerHTML=`
+    <div style="background:#EFF6FF;border-radius:14px;padding:12px 8px;text-align:center;">
+      <div style="font-family:monospace;font-size:19px;font-weight:800;color:#1D4ED8;">${fmtDurC(p1H)}</div>
+      <div style="font-size:10px;font-weight:700;color:#3B82F6;margin-top:4px;letter-spacing:.3px;">${CUR_LANG==='vi'?'KỲ 1':'PERIOD 1'}</div>
+      <div style="font-size:10px;color:#93C5FD;margin-top:1px;">${CUR_LANG==='vi'?'ngày 1 – 15':'day 1 – 15'}</div>
+    </div>
+    <div style="background:#F5F3FF;border-radius:14px;padding:12px 8px;text-align:center;">
+      <div style="font-family:monospace;font-size:19px;font-weight:800;color:#6D28D9;">${fmtDurC(p2H)}</div>
+      <div style="font-size:10px;font-weight:700;color:#7C3AED;margin-top:4px;letter-spacing:.3px;">${CUR_LANG==='vi'?'KỲ 2':'PERIOD 2'}</div>
+      <div style="font-size:10px;color:#C4B5FD;margin-top:1px;">${CUR_LANG==='vi'?'ngày 16 – cuối':'day 16 – end'}</div>
+    </div>
+    <div style="background:#ECFDF5;border-radius:14px;padding:12px 8px;text-align:center;">
+      <div style="font-family:monospace;font-size:19px;font-weight:800;color:#059669;">${fmtDurC(totalH)}</div>
+      <div style="font-size:10px;font-weight:700;color:#10B981;margin-top:4px;letter-spacing:.3px;">${CUR_LANG==='vi'?'TỔNG':'TOTAL'}</div>
+      <div style="font-size:10px;color:#6EE7B7;margin-top:1px;">${sortedDates.length} ${t('daysWorked')}</div>
+    </div>`;
+
+  const detailEl=document.getElementById('emp-month-detail');
+  if(!detailEl) return;
+
+  if(!sortedDates.length && !openRec){
+    detailEl.innerHTML=`<div style="text-align:center;padding:28px 0;color:#94A3B8;font-size:13px;">
+      <div style="font-size:32px;margin-bottom:8px;">📅</div>
+      ${t('noShiftsThisMonth')}
+    </div>`;
+    return;
+  }
+
+  const today=getDateStr();
+  const WD=t('dayNamesShort');
+  let html='';
+
+  if(openRec){
+    const odd=openRec.date.split('-')[2];
+    const odn=WD[new Date(openRec.clockIn).getDay()];
+    const oper=getPeriod(openRec.date);
+    html+=`<div style="padding:12px;background:#F0FDF4;border:1.5px solid #BBF7D0;border-radius:14px;margin-bottom:10px;">
+      <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:7px;">
+        <div style="display:flex;align-items:center;gap:7px;flex-wrap:wrap;">
+          <div class="live-dot" style="width:8px;height:8px;flex-shrink:0;"></div>
+          <span style="font-weight:700;font-size:14px;color:var(--navy);">${odn}, ${odd}/${mon}</span>
+          ${openRec.date===today?`<span style="background:#FEF3C7;color:#92400E;font-size:10px;font-weight:700;padding:1px 6px;border-radius:5px;">${t('hToday')}</span>`:''}
+          <span class="badge ${oper===1?'badge-blue':'badge-purple'}" style="font-size:10px;">${t('colPeriod')} ${oper}</span>
+        </div>
+        <span class="elapsed-timer" data-since="${openRec.clockIn}" style="font-family:monospace;font-weight:800;font-size:16px;color:var(--green);">${fmtDurC((Date.now()-new Date(openRec.clockIn))/3600000)}</span>
+      </div>
+      <div style="display:flex;flex-wrap:wrap;gap:6px;">
+        <span style="font-size:12px;background:white;border:1px solid #BBF7D0;padding:4px 10px;border-radius:8px;font-family:monospace;color:#065F46;">${fmtTime(openRec.clockIn)} <span style="opacity:.5;">→ ${t('workingEllipsis')}</span></span>
+      </div>
+    </div>`;
+  }
+
+  html += [...sortedDates].reverse().map(date=>{
+    const recs=byDate[date].sort((a,b)=>new Date(a.clockIn)-new Date(b.clockIn));
+    const dayH=recs.reduce((s,r)=>s+r.durationHours,0);
+    const period=getPeriod(date);
+    const dObj=new Date(date+'T12:00:00');
+    const dn=WD[dObj.getDay()];
+    const [,,dd]=date.split('-');
+    const isToday=date===today;
+    const hasOpen=openRec && openRec.date===date;
+
+    return `<div style="padding:12px 0;border-bottom:1px solid #F8FAFC;">
+      <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:8px;">
+        <div style="display:flex;align-items:center;gap:6px;flex-wrap:wrap;">
+          <span style="font-weight:700;font-size:14px;color:var(--navy);">${dn}, ${dd}/${mon}</span>
+          ${isToday?`<span style="background:#FEF3C7;color:#92400E;font-size:10px;font-weight:700;padding:1px 6px;border-radius:5px;">${t('hToday')}</span>`:''}
+          <span class="badge ${period===1?'badge-blue':'badge-purple'}" style="font-size:10px;">${t('colPeriod')} ${period}</span>
+        </div>
+        <div style="text-align:right;">
+          <div style="font-family:monospace;font-weight:800;font-size:16px;color:${period===1?'#1D4ED8':'#6D28D9'};">${fmtDur(dayH)}</div>
+          <div style="font-size:10px;color:#94A3B8;margin-top:1px;">${recs.length} ${t('shiftLabel').toLowerCase()}${hasOpen?` + ${t('workingLabel').toLowerCase()}`:''}</div>
+        </div>
+      </div>
+      <div style="display:flex;flex-direction:column;gap:5px;">
+        ${recs.map((r,i)=>`
+          <div style="display:flex;align-items:center;justify-content:space-between;background:#F8FAFC;border:1px solid #E2E8F0;border-radius:10px;padding:7px 12px;">
+            <div style="display:flex;align-items:center;gap:8px;">
+              <span style="font-size:10px;font-weight:600;color:#94A3B8;width:16px;">${t('shiftLabel')} ${i+1}</span>
+              <span style="font-family:monospace;font-size:13px;font-weight:600;color:#374151;">${fmtTime(r.clockIn)}</span>
+              <span style="color:#CBD5E1;font-size:12px;">→</span>
+              <span style="font-family:monospace;font-size:13px;font-weight:600;color:#374151;">${fmtTime(r.clockOut)}</span>
+            </div>
+            <span style="font-family:monospace;font-size:12px;font-weight:700;color:var(--navy);">${fmtDurC(r.durationHours)}</span>
+          </div>`).join('')}
+        ${hasOpen?`<div style="display:flex;align-items:center;justify-content:space-between;background:#F0FDF4;border:1px solid #BBF7D0;border-radius:10px;padding:7px 12px;">
+          <div style="display:flex;align-items:center;gap:8px;">
+            <span style="font-size:10px;font-weight:600;color:#059669;width:16px;">${t('shiftLabel')} ${recs.length+1}</span>
+            <span style="font-family:monospace;font-size:13px;font-weight:600;color:#065F46;">${fmtTime(openRec.clockIn)}</span>
+            <span style="color:#6EE7B7;font-size:12px;">→</span>
+            <span style="font-size:12px;color:#059669;font-weight:600;">${t('workingEllipsis')}</span>
+          </div>
+          <span class="elapsed-timer" data-since="${openRec.clockIn}" style="font-family:monospace;font-size:12px;font-weight:700;color:var(--green);">${fmtDurC((Date.now()-new Date(openRec.clockIn))/3600000)}</span>
+        </div>`:''}
+      </div>
+    </div>`;
+  }).join('');
+
+  if(sortedDates.length || openRec){
+    html+=`<div style="margin-top:14px;padding:12px;background:#F8FAFC;border-radius:14px;">
+      <div style="display:flex;justify-content:space-between;font-size:13px;margin-bottom:8px;">
+        <span style="color:#64748B;font-weight:500;">${t('period1Short')}</span>
+        <span style="font-family:monospace;font-weight:700;color:#1D4ED8;">${fmtDur(p1H)}</span>
+      </div>
+      <div style="display:flex;justify-content:space-between;font-size:13px;margin-bottom:10px;">
+        <span style="color:#64748B;font-weight:500;">${t('period2Short')}</span>
+        <span style="font-family:monospace;font-weight:700;color:#6D28D9;">${fmtDur(p2H)}</span>
+      </div>
+      <div style="display:flex;justify-content:space-between;font-size:15px;padding-top:10px;border-top:1.5px solid #E2E8F0;">
+        <span style="font-weight:700;color:var(--navy);">${t('monthTotalPrefix')} ${mon}/${yr}</span>
+        <span style="font-family:monospace;font-weight:800;font-size:17px;color:var(--green);">${fmtDur(totalH)}</span>
+      </div>
+    </div>`;
+  }
+
+  detailEl.innerHTML=html;
+}
+
+// ════════════════════════════════════════
+// UTILS
+// ════════════════════════════════════════
+function dlCSV(rows,name){
+  const csv=rows.map(r=>r.map(c=>`"${String(c).replace(/"/g,'""')}"`).join(',')).join('\r\n');
+  const blob=new Blob(['\uFEFF'+csv],{type:'text/csv;charset=utf-8;'});
+  const a=document.createElement('a'); a.href=URL.createObjectURL(blob); a.download=name; a.click(); URL.revokeObjectURL(a.href);
+}
+
+let _toastT;
+function toast(msg,color='green'){
+  const el=document.getElementById('toast');
+  el.textContent=msg;
+  el.style.background=color==='green'?'#059669':'#DC2626';
+  el.classList.remove('hidden'); clearTimeout(_toastT);
+  _toastT=setTimeout(()=>el.classList.add('hidden'),3000);
+}
+
+// ════════════════════════════════════════
+// BOOT
+// ════════════════════════════════════════
+boot();
+</script>
+</body>
+</html>
