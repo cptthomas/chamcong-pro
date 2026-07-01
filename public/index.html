@@ -154,7 +154,6 @@
       </div>
     </div>
     <div class="login-logo">⏱</div>
-    <div class="login-title">ChamCong Pro</div>
     <div class="login-sub" data-i18n="loginSub"></div>
 
     <div style="margin-bottom:4px;">
@@ -183,7 +182,6 @@
       <div style="display:flex;align-items:center;gap:10px;">
         <div style="background:rgba(255,255,255,.12);border-radius:10px;padding:7px 10px;font-size:18px;">⏱</div>
         <div>
-          <div style="color:white;font-weight:800;font-size:15px;line-height:1;">ChamCong Pro</div>
           <div style="color:rgba(255,255,255,.4);font-size:10px;margin-top:2px;display:flex;align-items:center;gap:4px;">
             <span style="background:#F59E0B;color:#7C2D12;font-size:9px;font-weight:700;padding:1px 5px;border-radius:4px;" data-i18n="adminBadge"></span>
             <span data-i18n="adminName"></span>
@@ -353,8 +351,7 @@
 ════════════════════════════════════════ -->
 <div id="screen-employee" style="display:none;min-height:100vh;background:linear-gradient(160deg,#0A1628,#0F2447);padding:20px;flex-direction:column;align-items:center;justify-content:flex-start;padding-top:40px;">
 
-  <div style="width:100%;max-width:420px;display:flex;align-items:center;justify-content:space-between;margin-bottom:24px;flex-wrap:wrap;gap:10px;">
-    <div style="color:rgba(255,255,255,.4);font-size:12px;">⏱ ChamCong Pro</div>
+  <div style="width:100%;max-width:420px;display:flex;align-items:center;justify-content:flex-end;margin-bottom:24px;flex-wrap:wrap;gap:10px;">
     <div style="display:flex;align-items:center;gap:10px;">
       <div class="lang-switch" id="lang-switch-emp">
         <button class="lang-btn" data-lang="vi" onclick="setLang('vi')">VI</button>
@@ -942,7 +939,7 @@ async function syncRecords(){ RECORDS = await api('/records'); }
 // FORMATTERS
 // ════════════════════════════════════════
 function fmtCur(v) {
-  return new Intl.NumberFormat('en-US',{style:'currency',currency:'USD'}).format(v);
+  return new Intl.NumberFormat('en-US',{style:'currency',currency:'USD',useGrouping:false}).format(v);
 }
 function fmtTime(iso) {
   if (!iso) return '--:--';
@@ -956,7 +953,8 @@ function fmtDate(s) { const [y,m,d]=s.split('-'); return `${d}/${m}/${y}`; }
 function fmtDur(h) {
   if (h==null) return '—';
   const hh=Math.floor(h), mm=Math.round((h-hh)*60);
-  return CUR_LANG==='vi' ? `${hh}g ${String(mm).padStart(2,'0')}p` : `${hh}h ${String(mm).padStart(2,'0')}m`;
+  const unit = CUR_LANG==='vi' ? 'g' : 'h';
+  return mm>0 ? `${hh}${unit}${String(mm).padStart(2,'0')}` : `${hh}${unit}`;
 }
 function fmtDurC(h) {
   if (h==null) return '...';
@@ -1123,7 +1121,6 @@ function adminTab(name){
     const now=new Date();
     if(!document.getElementById('pay-month').value) document.getElementById('pay-month').value=getMonthStr(now);
     if(!document.getElementById('pay-period').value) document.getElementById('pay-period').value=String(getPeriod(getDateStr(now)));
-    document.getElementById('payroll-result').innerHTML='';
   }
   if(name==='caidat') renderSettings();
 }
@@ -1213,9 +1210,7 @@ function renderAdminActiveList(){
   cnt.textContent=`${recs.length} ${t('peopleCount')}`;
   if(!recs.length){ lst.innerHTML=`<p style="font-size:12px;color:#94A3B8;">${t('noOneWorking')}</p>`; return; }
   lst.innerHTML=recs.map(r=>{
-    const col=empColor(r.employeeName);
     return `<div style="display:flex;align-items:center;gap:10px;padding:10px 12px;border-radius:12px;background:#F8FAFC;">
-      <div class="avatar" style="background:${col}18;color:${col};">${initials(r.employeeName)}</div>
       <div style="flex:1;min-width:0;">
         <div style="font-weight:600;font-size:13px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">${r.employeeName}</div>
         <div style="font-size:11px;color:#94A3B8;">${t('fromTime')} ${fmtTime(r.clockIn)}</div>
@@ -1290,15 +1285,15 @@ function renderEmployees(){
     box.innerHTML=`<div class="card empty" style="grid-column:1/-1;"><div class="empty-icon">👥</div><h3>${t('noEmployees')}</h3><p>${t('noEmployeesHint')}</p></div>`;
     return;
   }
+  const curMonth=getMonthStr();
+  const selPeriod=document.getElementById('f-period')?.value||'';
   box.innerHTML=emps.map(emp=>{
-    const recs=DB.records().filter(r=>r.employeeId===emp.id&&r.durationHours);
+    const recs=DB.records().filter(r=>r.employeeId===emp.id&&r.durationHours&&r.month===curMonth&&(!selPeriod||String(r.period)===selPeriod));
     const totalH=recs.reduce((s,r)=>s+r.durationHours,0);
     const isActive=emp.active!==false;
-    const col=empColor(emp.name);
     const hasPw=!!emp.hasPassword;
     return `<div class="card">
       <div style="display:flex;align-items:center;gap:12px;margin-bottom:14px;">
-        <div class="avatar" style="width:46px;height:46px;font-size:17px;background:${col}18;color:${col};flex-shrink:0;">${initials(emp.name)}</div>
         <div style="flex:1;min-width:0;">
           <div style="font-weight:700;font-size:15px;color:var(--navy);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">${emp.name}</div>
           <div style="font-size:12px;color:#94A3B8;">${emp.notes||''}</div>
@@ -1357,26 +1352,17 @@ function renderRecs(){
 
   box.innerHTML=`<table class="data-table">
     <thead><tr>
-      <th>${t('colEmployee')}</th><th>${t('colDate')}</th><th>${t('colPeriod')}</th><th>${t('colIn')}</th><th>${t('colOut')}</th><th>${t('colHours')}</th><th>${t('colTip')}</th><th>${t('colStatus')}</th><th>${t('colAction')}</th>
+      <th>${t('colEmployee')}</th><th>${t('colDate')}</th><th>${t('colIn')}</th><th>${t('colOut')}</th><th>${t('colHours')}</th><th>${t('colTip')}</th><th>${t('colAction')}</th>
     </tr></thead>
     <tbody>${recs.map(r=>{
-      const col=empColor(r.employeeName);
       const emp=DB.employees().find(e=>e.id===r.employeeId);
       return `<tr>
-        <td><div style="display:flex;align-items:center;gap:7px;">
-          <div class="avatar" style="width:27px;height:27px;font-size:10px;background:${col}18;color:${col};">${initials(r.employeeName)}</div>
-          <span style="font-weight:600;">${r.employeeName}</span>
-        </div></td>
+        <td><span style="font-weight:600;">${r.employeeName}</span></td>
         <td style="font-family:monospace;font-size:12px;">${fmtDate(r.date)}</td>
-        <td><span class="badge ${r.period===1?'badge-blue':'badge-purple'}">${t('colPeriod')} ${r.period}</span></td>
         <td style="font-family:monospace;font-weight:600;">${fmtTime(r.clockIn)}</td>
         <td style="font-family:monospace;">${r.clockOut?fmtTime(r.clockOut):'—'}</td>
-        <td style="font-family:monospace;font-weight:700;color:var(--navy);">${r.durationHours?fmtDur(r.durationHours):(r.clockOut?'—':`<span style="color:#059669">${t('workingNow')}</span>`)}</td>
+        <td style="font-family:monospace;font-weight:700;color:var(--navy);">${r.durationHours?fmtDur(r.durationHours):(r.clockOut?'—':`<span style="color:#059669">${t('workingNow')}</span>`)}${r.isManual?`<span class="badge badge-amber" style="margin-left:4px;font-size:9px;">${t('manualBadge')}</span>`:''}</td>
         <td style="font-family:monospace;font-weight:600;color:#D97706;">${r.tip?fmtCur(r.tip,emp?.currency):'—'}</td>
-        <td>
-          <span class="badge ${r.clockOut?'badge-gray':'badge-green'}">${r.clockOut?t('statusDone'):t('statusWorking')}</span>
-          ${r.isManual?`<span class="badge badge-amber" style="margin-left:3px;font-size:10px;">${t('manualBadge')}</span>`:''}
-        </td>
         <td><div style="display:flex;gap:4px;">
           <button class="btn btn-outline" style="padding:5px 8px;font-size:11px;" onclick="openTipModal('${r.id}',${r.tip||0})">💵</button>
           <button class="btn btn-outline" style="padding:5px 8px;font-size:11px;" onclick="openEditRecModal('${r.id}')">✏️</button>
@@ -1513,42 +1499,16 @@ function calcPayroll(){
   const box=document.getElementById('payroll-result');
   if(!entries.length){ box.innerHTML=`<div class="card empty"><div class="empty-icon">💸</div><h3>${t('noDataThisPeriod')}</h3></div>`; return; }
 
-  const [yr,mon]=month.split('-');
-  const pLabel=period===1?`01/${mon}/${yr} → 15/${mon}/${yr}`:`16/${mon}/${yr} → ${CUR_LANG==='vi'?'cuối tháng':'end of month'}`;
-  const totals={};
-  entries.forEach(e=>{ const c=e.emp.currency; totals[c]=(totals[c]||0)+e.grossPay; });
-
   box.innerHTML=`
-  <div class="pay-card" style="margin-bottom:16px;">
-    <div style="display:flex;align-items:flex-start;justify-content:space-between;margin-bottom:16px;flex-wrap:wrap;gap:12px;">
-      <div>
-        <div style="font-size:11px;font-weight:700;letter-spacing:.6px;text-transform:uppercase;color:rgba(255,255,255,.5);margin-bottom:4px;">${t('colPeriod')} ${period} · ${mon}/${yr}</div>
-        <div style="font-weight:700;font-size:15px;">${pLabel}</div>
-      </div>
-      <div style="text-align:right;">
-        ${Object.entries(totals).map(([c,v])=>`<div style="font-weight:800;font-size:22px;font-family:monospace;">${fmtCur(v,c)}</div>`).join('')}
-        <div style="font-size:11px;color:rgba(255,255,255,.4);margin-top:2px;">${t('totalLaborCost')}</div>
-      </div>
-    </div>
-    <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:12px;padding-top:14px;border-top:1px solid rgba(255,255,255,.12);">
-      <div><div style="font-size:22px;font-weight:800;">${entries.length}</div><div style="font-size:11px;color:rgba(255,255,255,.45);">${t('employeesCount')}</div></div>
-      <div><div style="font-size:22px;font-weight:800;">${entries.reduce((s,e)=>s+e.recs.length,0)}</div><div style="font-size:11px;color:rgba(255,255,255,.45);">${t('shiftsCount')}</div></div>
-      <div><div style="font-size:22px;font-weight:800;font-family:monospace;">${fmtDurC(entries.reduce((s,e)=>s+e.totalH,0))}</div><div style="font-size:11px;color:rgba(255,255,255,.45);">${t('totalHours')}</div></div>
-    </div>
-  </div>
   <div class="card" style="margin-bottom:16px;overflow-x:auto;">
     <table class="data-table">
       <thead><tr><th>${t('colEmployee')}</th><th>${t('colDept')}</th><th>${t('colShifts')}</th><th>${t('colTotalHours')}</th><th>${t('colHourlyRate')}</th><th>${t('colTotalTip')}</th><th style="text-align:right;">${t('colGrossPay')}</th></tr></thead>
       <tbody>${entries.map(e=>{
-        const col=empColor(e.emp.name);
         return `<tr>
-          <td><div style="display:flex;align-items:center;gap:8px;">
-            <div class="avatar" style="width:30px;height:30px;font-size:11px;background:${col}18;color:${col};">${initials(e.emp.name)}</div>
-            <span style="font-weight:600;">${e.emp.name}</span>
-          </div></td>
+          <td><span style="font-weight:600;">${e.emp.name}</span></td>
           <td style="color:#94A3B8;font-size:12px;">${e.emp.notes||'—'}</td>
           <td style="text-align:center;font-weight:600;">${e.recs.length}</td>
-          <td><span style="font-family:monospace;font-weight:700;color:var(--navy);">${fmtDur(e.totalH)}</span><br><span style="font-size:11px;color:#94A3B8;">${e.totalH.toFixed(2)}h</span></td>
+          <td><span style="font-family:monospace;font-weight:700;color:var(--navy);">${fmtDur(e.totalH)}</span></td>
           <td style="font-family:monospace;font-size:12px;">${fmtCur(e.emp.hourlyRate,e.emp.currency)}</td>
           <td style="font-family:monospace;font-size:12px;color:#D97706;">${e.totalTip?fmtCur(e.totalTip,e.emp.currency):'—'}</td>
           <td style="text-align:right;"><span style="font-family:monospace;font-weight:800;font-size:15px;color:var(--green);">${fmtCur(e.grossPay,e.emp.currency)}</span></td>
@@ -1626,9 +1586,7 @@ function renderSettings(){
   if(!emps.length){ box.innerHTML=`<div class="empty" style="padding:20px 0;"><p>${t('noEmployeesYet')}</p></div>`; return; }
   box.innerHTML=emps.map(emp=>{
     const hasPw=!!emp.hasPassword;
-    const col=empColor(emp.name);
     return `<div style="display:flex;align-items:center;gap:12px;padding:12px 0;border-bottom:1px solid #F1F5F9;">
-      <div class="avatar" style="background:${col}18;color:${col};">${initials(emp.name)}</div>
       <div style="flex:1;min-width:0;">
         <div style="font-weight:600;font-size:14px;">${emp.name}</div>
         <div style="font-size:11px;color:#94A3B8;">${emp.notes||''}</div>
