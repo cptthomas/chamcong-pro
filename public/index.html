@@ -351,7 +351,7 @@
 <!-- ════════════════════════════════════════
      SCREEN: EMPLOYEE KIOSK
 ════════════════════════════════════════ -->
-<div id="screen-employee" class="hidden" style="min-height:100vh;background:linear-gradient(160deg,#0A1628,#0F2447);padding:20px;display:flex;flex-direction:column;align-items:center;justify-content:flex-start;padding-top:40px;">
+<div id="screen-employee" style="display:none;min-height:100vh;background:linear-gradient(160deg,#0A1628,#0F2447);padding:20px;flex-direction:column;align-items:center;justify-content:flex-start;padding-top:40px;">
 
   <div style="width:100%;max-width:420px;display:flex;align-items:center;justify-content:space-between;margin-bottom:24px;flex-wrap:wrap;gap:10px;">
     <div style="color:rgba(255,255,255,.4);font-size:12px;">⏱ ChamCong Pro</div>
@@ -1038,7 +1038,7 @@ function doLogout(){
   AUTH.clearSession();
   clearInterval(_adminPollT);
   document.getElementById('screen-admin').classList.add('hidden');
-  document.getElementById('screen-employee').classList.add('hidden');
+  document.getElementById('screen-employee').style.display='none';
   document.getElementById('screen-login').style.display='flex';
   document.getElementById('login-pw').value = '';
   document.getElementById('login-err').textContent = '';
@@ -1067,7 +1067,7 @@ async function boot(){
 
 async function loadAdminApp(){
   document.getElementById('screen-login').style.display='none';
-  document.getElementById('screen-employee').classList.add('hidden');
+  document.getElementById('screen-employee').style.display='none';
   document.getElementById('screen-admin').classList.remove('hidden');
   applyStaticTranslations();
   await syncEmployees();
@@ -1079,7 +1079,7 @@ async function loadAdminApp(){
 async function loadEmployeeApp(emp){
   document.getElementById('screen-login').style.display='none';
   document.getElementById('screen-admin').classList.add('hidden');
-  document.getElementById('screen-employee').classList.remove('hidden');
+  document.getElementById('screen-employee').style.display='flex';
   applyStaticTranslations();
   await syncRecords();
   renderEmpKiosk(emp);
