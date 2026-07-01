@@ -33,9 +33,14 @@ db.exec(`
     period INTEGER NOT NULL,
     month TEXT NOT NULL,
     isManual INTEGER NOT NULL DEFAULT 0,
-    notes TEXT
+    notes TEXT,
+    tip REAL NOT NULL DEFAULT 0
   );
 `);
+
+if (!db.prepare("SELECT 1 FROM pragma_table_info('records') WHERE name = 'tip'").get()) {
+  db.exec('ALTER TABLE records ADD COLUMN tip REAL NOT NULL DEFAULT 0');
+}
 
 if (!db.prepare('SELECT id FROM admin WHERE id = 1').get()) {
   db.prepare('INSERT INTO admin (id, passwordHash) VALUES (1, ?)').run(bcrypt.hashSync('admin123', 10));

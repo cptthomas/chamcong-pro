@@ -22,8 +22,8 @@ const getMonthStr = (d = new Date()) => `${d.getFullYear()}-${String(d.getMonth(
 // ── seed sample employees on first run ──
 if (db.prepare('SELECT COUNT(*) c FROM employees').get().c === 0) {
   const seed = [
-    { name: 'Nguyễn Văn An', hourlyRate: 50000, currency: 'VND', notes: 'Bộ phận kho', password: 'nv123' },
-    { name: 'Trần Thị Bình', hourlyRate: 75000, currency: 'VND', notes: 'Kế toán', password: 'ttb456' },
+    { name: 'Nguyễn Văn An', hourlyRate: 18, currency: 'USD', notes: 'Bộ phận kho', password: 'nv123' },
+    { name: 'Trần Thị Bình', hourlyRate: 22, currency: 'USD', notes: 'Kế toán', password: 'ttb456' },
     { name: 'Lê Quốc Hùng', hourlyRate: 8.5, currency: 'USD', notes: 'IT - Dev', password: null },
   ];
   const ins = db.prepare(
@@ -120,7 +120,7 @@ app.post('/api/employees', requireAuth, requireAdmin, (req, res) => {
   const id = uuid();
   db.prepare(
     `INSERT INTO employees (id,name,hourlyRate,currency,notes,passwordHash,active,createdAt) VALUES (?,?,?,?,?,?,1,?)`
-  ).run(id, name, hourlyRate, currency || 'VND', notes || '', password ? bcrypt.hashSync(password, 10) : null, new Date().toISOString());
+  ).run(id, name, hourlyRate, currency || 'USD', notes || '', password ? bcrypt.hashSync(password, 10) : null, new Date().toISOString());
   res.json(employeeOut(db.prepare('SELECT * FROM employees WHERE id = ?').get(id)));
 });
 
@@ -136,7 +136,7 @@ app.put('/api/employees/:id', requireAuth, requireAdmin, (req, res) => {
   }
   db.prepare(
     `UPDATE employees SET name=?, hourlyRate=?, currency=?, notes=?, passwordHash=COALESCE(?, passwordHash) WHERE id=?`
-  ).run(name, hourlyRate, currency || 'VND', notes || '', password ? bcrypt.hashSync(password, 10) : null, emp.id);
+  ).run(name, hourlyRate, currency || 'USD', notes || '', password ? bcrypt.hashSync(password, 10) : null, emp.id);
   if (name !== emp.name) {
     db.prepare('UPDATE records SET employeeName=? WHERE employeeId=?').run(name, emp.id);
   }
@@ -180,7 +180,7 @@ app.get('/api/records', requireAuth, (req, res) => {
 });
 
 app.post('/api/records', requireAuth, requireAdmin, (req, res) => {
-  const { employeeId, clockIn, clockOut, notes } = req.body || {};
+  const { employeeId, clockIn, clockOut, notes, tip } = req.body || {};
   const emp = db.prepare('SELECT * FROM employees WHERE id=?').get(employeeId);
   if (!emp) return res.status(400).json({ error: 'invalid' });
   if (!clockIn) return res.status(400).json({ error: 'invalid' });
@@ -190,24 +190,34 @@ app.post('/api/records', requireAuth, requireAdmin, (req, res) => {
   const ds = getDateStr(ci);
   const id = uuid();
   db.prepare(
-    `INSERT INTO records (id,employeeId,employeeName,clockIn,clockOut,durationHours,date,period,month,isManual,notes) VALUES (?,?,?,?,?,?,?,?,?,1,?)`
-  ).run(id, emp.id, emp.name, ci.toISOString(), co ? co.toISOString() : null, co ? (co - ci) / 3600000 : null, ds, getPeriod(ds), getMonthStr(ci), notes || '');
+    `INSERT INTO records (id,employeeId,employeeName,clockIn,clockOut,durationHours,date,period,month,isManual,notes,tip) VALUES (?,?,?,?,?,?,?,?,?,1,?,?)`
+  ).run(id, emp.id, emp.name, ci.toISOString(), co ? co.toISOString() : null, co ? (co - ci) / 3600000 : null, ds, getPeriod(ds), getMonthStr(ci), notes || '', Number(tip) || 0);
   res.json(db.prepare('SELECT * FROM records WHERE id=?').get(id));
 });
 
 app.put('/api/records/:id', requireAuth, requireAdmin, (req, res) => {
   const rec = db.prepare('SELECT * FROM records WHERE id=?').get(req.params.id);
   if (!rec) return res.status(404).json({ error: 'not-found' });
-  const { employeeId, clockIn, clockOut, notes } = req.body || {};
+  const { employeeId, clockIn, clockOut, notes, tip } = req.body || {};
   const emp = db.prepare('SELECT * FROM employees WHERE id=?').get(employeeId);
   if (!emp || !clockIn) return res.status(400).json({ error: 'invalid' });
   const ci = new Date(clockIn);
   const co = clockOut ? new Date(clockOut) : null;
   if (co && co <= ci) return res.status(400).json({ error: 'out-before-in' });
   const ds = getDateStr(ci);
+  const keepTip = tip === undefined ? rec.tip : Number(tip) || 0;
   db.prepare(
-    `UPDATE records SET employeeId=?, employeeName=?, clockIn=?, clockOut=?, durationHours=?, date=?, period=?, month=?, notes=?, isManual=1 WHERE id=?`
-  ).run(emp.id, emp.name, ci.toISOString(), co ? co.toISOString() : null, co ? (co - ci) / 3600000 : null, ds, getPeriod(ds), getMonthStr(ci), notes || '', rec.id);
+    `UPDATE records SET employeeId=?, employeeName=?, clockIn=?, clockOut=?, durationHours=?, date=?, period=?, month=?, notes=?, tip=?, isManual=1 WHERE id=?`
+  ).run(emp.id, emp.name, ci.toISOString(), co ? co.toISOString() : null, co ? (co - ci) / 3600000 : null, ds, getPeriod(ds), getMonthStr(ci), notes || '', keepTip, rec.id);
+  res.json(db.prepare('SELECT * FROM records WHERE id=?').get(rec.id));
+});
+
+app.put('/api/records/:id/tip', requireAuth, requireAdmin, (req, res) => {
+  const rec = db.prepare('SELECT * FROM records WHERE id=?').get(req.params.id);
+  if (!rec) return res.status(404).json({ error: 'not-found' });
+  const tip = Number(req.body && req.body.tip) || 0;
+  if (tip < 0) return res.status(400).json({ error: 'invalid' });
+  db.prepare('UPDATE records SET tip=? WHERE id=?').run(tip, rec.id);
   res.json(db.prepare('SELECT * FROM records WHERE id=?').get(rec.id));
 });
 

@@ -276,7 +276,7 @@
             <button class="btn btn-success" onclick="exportRecCSV()" data-i18n="exportCSV"></button>
           </div>
         </div>
-        <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:10px;margin-bottom:16px;">
+        <div class="md-grid" style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:10px;margin-bottom:16px;">
           <select id="f-emp" class="inp" onchange="renderRecs()"><option value="" data-i18n="allEmployees"></option></select>
           <input type="month" id="f-month" class="inp" onchange="renderRecs()">
           <select id="f-period" class="inp" onchange="renderRecs()">
@@ -294,7 +294,7 @@
       <div class="card" style="margin-bottom:20px;">
         <div class="section-title" style="margin-bottom:4px;" data-i18n="payrollTitle"></div>
         <div class="section-sub" style="margin-bottom:16px;" data-i18n="payrollSub"></div>
-        <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:12px;">
+        <div class="md-grid" style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:12px;">
           <input type="month" id="pay-month" class="inp">
           <select id="pay-period" class="inp">
             <option value="1" data-i18n="period1Long"></option>
@@ -411,15 +411,9 @@
         <label style="font-size:11px;font-weight:600;color:#64748B;margin-bottom:6px;display:block;" data-i18n="empNameLabel"></label>
         <input id="m-name" type="text" class="inp" data-i18n-ph="empNamePh">
       </div>
-      <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;">
-        <div>
-          <label style="font-size:11px;font-weight:600;color:#64748B;margin-bottom:6px;display:block;" data-i18n="hourlyRateLabel"></label>
-          <input id="m-rate" type="number" class="inp" placeholder="0" min="0" step="0.01">
-        </div>
-        <div>
-          <label style="font-size:11px;font-weight:600;color:#64748B;margin-bottom:6px;display:block;" data-i18n="currencyLabel"></label>
-          <select id="m-currency" class="inp"><option value="VND" data-i18n="currVND"></option><option value="USD" data-i18n="currUSD"></option></select>
-        </div>
+      <div>
+        <label style="font-size:11px;font-weight:600;color:#64748B;margin-bottom:6px;display:block;" data-i18n="hourlyRateLabel"></label>
+        <input id="m-rate" type="number" class="inp" placeholder="0.00" min="0" step="0.01">
       </div>
       <div>
         <label style="font-size:11px;font-weight:600;color:#64748B;margin-bottom:6px;display:block;" data-i18n="deptNotesLabel"></label>
@@ -496,6 +490,19 @@
       <button class="btn btn-amber" style="flex:1;" onclick="savePwReset()" data-i18n="update"></button>
     </div>
     <input type="hidden" id="pw-reset-emp-id">
+  </div>
+</div>
+
+<!-- MODAL: Add tip -->
+<div id="tip-modal" class="modal-overlay hidden" onclick="if(event.target===this)closeTipModal()">
+  <div class="modal-box" style="max-width:340px;">
+    <h3 style="font-weight:800;font-size:17px;color:var(--navy);margin-bottom:16px;" data-i18n="tipLabel"></h3>
+    <input id="tip-val" type="number" class="inp" placeholder="0.00" min="0" step="0.01">
+    <div style="display:flex;gap:10px;margin-top:16px;">
+      <button class="btn btn-outline" style="flex:1;" onclick="closeTipModal()" data-i18n="cancel"></button>
+      <button class="btn btn-amber" style="flex:1;" onclick="saveTip()" data-i18n="save"></button>
+    </div>
+    <input type="hidden" id="tip-rec-id">
   </div>
 </div>
 
@@ -615,10 +622,7 @@ vi: {
   editEmpTitle: 'Chỉnh sửa nhân viên',
   empNameLabel: 'Tên nhân viên *',
   empNamePh: 'VD: Nguyễn Văn An',
-  hourlyRateLabel: 'Lương/giờ *',
-  currencyLabel: 'Đơn vị tiền',
-  currVND: 'VNĐ',
-  currUSD: 'USD',
+  hourlyRateLabel: 'Lương/giờ ($) *',
   deptNotesLabel: 'Phòng ban / Ghi chú',
   deptNotesPh: 'VD: Bộ phận kho',
   loginPwLabel: 'Mật khẩu đăng nhập',
@@ -635,6 +639,10 @@ vi: {
   clockOutLabel: 'Giờ ra',
   reasonNotesLabel: 'Lý do / Ghi chú',
   reasonNotesPh: 'VD: Quên clock in, điều chỉnh giờ...',
+  tipLabel: 'Tiền tip',
+  colTip: 'Tip',
+  colTotalTip: 'Tổng Tip',
+  colGrossPay: 'Lương + Tip',
   resetPwTitle: 'Đặt lại mật khẩu',
   resetPwEmpPrefix: 'Nhân viên:',
   newPwPh2: 'Mật khẩu mới',
@@ -786,10 +794,7 @@ en: {
   editEmpTitle: 'Edit Employee',
   empNameLabel: 'Employee name *',
   empNamePh: 'e.g. John Smith',
-  hourlyRateLabel: 'Hourly rate *',
-  currencyLabel: 'Currency',
-  currVND: 'VND',
-  currUSD: 'USD',
+  hourlyRateLabel: 'Hourly rate ($) *',
   deptNotesLabel: 'Department / Notes',
   deptNotesPh: 'e.g. Warehouse',
   loginPwLabel: 'Login password',
@@ -806,6 +811,10 @@ en: {
   clockOutLabel: 'Clock out',
   reasonNotesLabel: 'Reason / Notes',
   reasonNotesPh: 'e.g. Forgot to clock in, time adjustment...',
+  tipLabel: 'Tip amount',
+  colTip: 'Tip',
+  colTotalTip: 'Total Tips',
+  colGrossPay: 'Pay + Tips',
   resetPwTitle: 'Reset Password',
   resetPwEmpPrefix: 'Employee:',
   newPwPh2: 'New password',
@@ -932,10 +941,8 @@ async function syncRecords(){ RECORDS = await api('/records'); }
 // ════════════════════════════════════════
 // FORMATTERS
 // ════════════════════════════════════════
-function fmtCur(v, c='VND') {
-  return c==='USD'
-    ? new Intl.NumberFormat('en-US',{style:'currency',currency:'USD'}).format(v)
-    : new Intl.NumberFormat('vi-VN',{style:'currency',currency:'VND',maximumFractionDigits:0}).format(v);
+function fmtCur(v) {
+  return new Intl.NumberFormat('en-US',{style:'currency',currency:'USD'}).format(v);
 }
 function fmtTime(iso) {
   if (!iso) return '--:--';
@@ -1230,7 +1237,6 @@ function openEmpModal(id=null){
   document.getElementById('emp-modal-title').textContent=id?t('editEmpTitle'):t('addEmpTitle');
   document.getElementById('m-name').value    =emp?.name||'';
   document.getElementById('m-rate').value    =emp?.hourlyRate||'';
-  document.getElementById('m-currency').value=emp?.currency||'VND';
   document.getElementById('m-notes').value   =emp?.notes||'';
   document.getElementById('m-pw').value      ='';
   document.getElementById('m-pw').placeholder=id?t('empPwPhEdit'):t('empPwPhAdd');
@@ -1242,7 +1248,6 @@ function closeEmpModal(){ document.getElementById('emp-modal').classList.add('hi
 async function saveEmp(){
   const name=document.getElementById('m-name').value.trim();
   const rate=parseFloat(document.getElementById('m-rate').value);
-  const cur =document.getElementById('m-currency').value;
   const notes=document.getElementById('m-notes').value.trim();
   const pw  =document.getElementById('m-pw').value;
   if(!name) return toast(t('toastEnterEmpName'),'red');
@@ -1250,9 +1255,9 @@ async function saveEmp(){
 
   try {
     if(_editEmpId){
-      await api(`/employees/${_editEmpId}`, {method:'PUT', body: JSON.stringify({name,hourlyRate:rate,currency:cur,notes,password:pw||null})});
+      await api(`/employees/${_editEmpId}`, {method:'PUT', body: JSON.stringify({name,hourlyRate:rate,currency:'USD',notes,password:pw||null})});
     } else {
-      await api('/employees', {method:'POST', body: JSON.stringify({name,hourlyRate:rate,currency:cur,notes,password:pw||null})});
+      await api('/employees', {method:'POST', body: JSON.stringify({name,hourlyRate:rate,currency:'USD',notes,password:pw||null})});
     }
   } catch(e) {
     if(e.code==='clash-admin') return toast(t('toastPwClashAdmin'),'red');
@@ -1352,10 +1357,11 @@ function renderRecs(){
 
   box.innerHTML=`<table class="data-table">
     <thead><tr>
-      <th>${t('colEmployee')}</th><th>${t('colDate')}</th><th>${t('colPeriod')}</th><th>${t('colIn')}</th><th>${t('colOut')}</th><th>${t('colHours')}</th><th>${t('colStatus')}</th><th>${t('colAction')}</th>
+      <th>${t('colEmployee')}</th><th>${t('colDate')}</th><th>${t('colPeriod')}</th><th>${t('colIn')}</th><th>${t('colOut')}</th><th>${t('colHours')}</th><th>${t('colTip')}</th><th>${t('colStatus')}</th><th>${t('colAction')}</th>
     </tr></thead>
     <tbody>${recs.map(r=>{
       const col=empColor(r.employeeName);
+      const emp=DB.employees().find(e=>e.id===r.employeeId);
       return `<tr>
         <td><div style="display:flex;align-items:center;gap:7px;">
           <div class="avatar" style="width:27px;height:27px;font-size:10px;background:${col}18;color:${col};">${initials(r.employeeName)}</div>
@@ -1366,11 +1372,13 @@ function renderRecs(){
         <td style="font-family:monospace;font-weight:600;">${fmtTime(r.clockIn)}</td>
         <td style="font-family:monospace;">${r.clockOut?fmtTime(r.clockOut):'—'}</td>
         <td style="font-family:monospace;font-weight:700;color:var(--navy);">${r.durationHours?fmtDur(r.durationHours):(r.clockOut?'—':`<span style="color:#059669">${t('workingNow')}</span>`)}</td>
+        <td style="font-family:monospace;font-weight:600;color:#D97706;">${r.tip?fmtCur(r.tip,emp?.currency):'—'}</td>
         <td>
           <span class="badge ${r.clockOut?'badge-gray':'badge-green'}">${r.clockOut?t('statusDone'):t('statusWorking')}</span>
           ${r.isManual?`<span class="badge badge-amber" style="margin-left:3px;font-size:10px;">${t('manualBadge')}</span>`:''}
         </td>
         <td><div style="display:flex;gap:4px;">
+          <button class="btn btn-outline" style="padding:5px 8px;font-size:11px;" onclick="openTipModal('${r.id}',${r.tip||0})">💵</button>
           <button class="btn btn-outline" style="padding:5px 8px;font-size:11px;" onclick="openEditRecModal('${r.id}')">✏️</button>
           <button class="btn btn-danger"  style="padding:5px 8px;font-size:11px;" onclick="deleteRec('${r.id}')">🗑</button>
         </div></td>
@@ -1389,8 +1397,8 @@ function exportRecCSV(){
   if(mf) recs=recs.filter(r=>r.month===mf);
   if(pf) recs=recs.filter(r=>String(r.period)===pf);
   recs.sort((a,b)=>new Date(b.clockIn)-new Date(a.clockIn));
-  const h=[t('colEmployee'),t('colDate'),t('colPeriod'),t('colIn'),t('colOut'),t('colHours'),t('colStatus'),'Notes'];
-  const rows=recs.map(r=>[r.employeeName,r.date,`${t('colPeriod')} ${r.period}`,fmtDT(r.clockIn),r.clockOut?fmtDT(r.clockOut):'',r.durationHours?r.durationHours.toFixed(4):'',r.clockOut?t('statusDone'):t('statusWorking'),r.notes||'']);
+  const h=[t('colEmployee'),t('colDate'),t('colPeriod'),t('colIn'),t('colOut'),t('colHours'),t('colTip'),t('colStatus'),'Notes'];
+  const rows=recs.map(r=>[r.employeeName,r.date,`${t('colPeriod')} ${r.period}`,fmtDT(r.clockIn),r.clockOut?fmtDT(r.clockOut):'',r.durationHours?r.durationHours.toFixed(4):'',r.tip?r.tip.toFixed(2):'0',r.clockOut?t('statusDone'):t('statusWorking'),r.notes||'']);
   dlCSV([h,...rows],`chamcong_${mf||'all'}.csv`);
   toast(t('toastExportedCSV'),'green');
 }
@@ -1467,6 +1475,24 @@ async function deleteRec(id){
   toast(t('recDeleted'),'green');
 }
 
+let _tipRecId=null;
+function openTipModal(id,currentTip){
+  _tipRecId=id;
+  document.getElementById('tip-rec-id').value=id;
+  document.getElementById('tip-val').value=currentTip||'';
+  document.getElementById('tip-modal').classList.remove('hidden');
+}
+function closeTipModal(){ document.getElementById('tip-modal').classList.add('hidden'); }
+async function saveTip(){
+  const id=document.getElementById('tip-rec-id').value;
+  const tip=parseFloat(document.getElementById('tip-val').value)||0;
+  if(tip<0) return toast(t('toastRateInvalid'),'red');
+  await api(`/records/${id}/tip`, {method:'PUT', body: JSON.stringify({tip})});
+  await syncRecords();
+  closeTipModal(); renderRecs();
+  toast(t('toastUpdated'),'green');
+}
+
 // ════════════════════════════════════════
 // ADMIN — PAYROLL
 // ════════════════════════════════════════
@@ -1479,7 +1505,9 @@ function calcPayroll(){
   const entries=emps.map(emp=>{
     const recs=allR.filter(r=>r.employeeId===emp.id);
     const totalH=recs.reduce((s,r)=>s+r.durationHours,0);
-    return {emp,recs,totalH,grossPay:totalH*emp.hourlyRate};
+    const totalTip=recs.reduce((s,r)=>s+(r.tip||0),0);
+    const wagePay=totalH*emp.hourlyRate;
+    return {emp,recs,totalH,totalTip,wagePay,grossPay:wagePay+totalTip};
   }).filter(e=>e.totalH>0);
 
   const box=document.getElementById('payroll-result');
@@ -1510,7 +1538,7 @@ function calcPayroll(){
   </div>
   <div class="card" style="margin-bottom:16px;overflow-x:auto;">
     <table class="data-table">
-      <thead><tr><th>${t('colEmployee')}</th><th>${t('colDept')}</th><th>${t('colShifts')}</th><th>${t('colTotalHours')}</th><th>${t('colHourlyRate')}</th><th style="text-align:right;">${t('colAmount')}</th></tr></thead>
+      <thead><tr><th>${t('colEmployee')}</th><th>${t('colDept')}</th><th>${t('colShifts')}</th><th>${t('colTotalHours')}</th><th>${t('colHourlyRate')}</th><th>${t('colTotalTip')}</th><th style="text-align:right;">${t('colGrossPay')}</th></tr></thead>
       <tbody>${entries.map(e=>{
         const col=empColor(e.emp.name);
         return `<tr>
@@ -1522,6 +1550,7 @@ function calcPayroll(){
           <td style="text-align:center;font-weight:600;">${e.recs.length}</td>
           <td><span style="font-family:monospace;font-weight:700;color:var(--navy);">${fmtDur(e.totalH)}</span><br><span style="font-size:11px;color:#94A3B8;">${e.totalH.toFixed(2)}h</span></td>
           <td style="font-family:monospace;font-size:12px;">${fmtCur(e.emp.hourlyRate,e.emp.currency)}</td>
+          <td style="font-family:monospace;font-size:12px;color:#D97706;">${e.totalTip?fmtCur(e.totalTip,e.emp.currency):'—'}</td>
           <td style="text-align:right;"><span style="font-family:monospace;font-weight:800;font-size:15px;color:var(--green);">${fmtCur(e.grossPay,e.emp.currency)}</span></td>
         </tr>`;
       }).join('')}</tbody>
@@ -1537,8 +1566,8 @@ function calcPayroll(){
 function exportPayCSV(period,month){
   const d=window._lastPayroll; if(!d) return;
   const [yr,mon]=month.split('-');
-  const h=[t('colEmployee'),t('colDept'),t('colShifts'),`${t('colTotalHours')} (h)`,t('colHourlyRate'),'Currency',t('colAmount')];
-  const rows=d.entries.map(e=>[e.emp.name,e.emp.notes||'',e.recs.length,e.totalH.toFixed(4),e.emp.hourlyRate,e.emp.currency,e.grossPay.toFixed(2)]);
+  const h=[t('colEmployee'),t('colDept'),t('colShifts'),`${t('colTotalHours')} (h)`,t('colHourlyRate'),t('colTotalTip'),'Currency',t('colGrossPay')];
+  const rows=d.entries.map(e=>[e.emp.name,e.emp.notes||'',e.recs.length,e.totalH.toFixed(4),e.emp.hourlyRate,e.totalTip.toFixed(2),e.emp.currency,e.grossPay.toFixed(2)]);
   dlCSV([h,...rows],`payroll_p${period}_${mon}_${yr}.csv`);
   toast(t('toastExportedCSV'),'green');
 }
